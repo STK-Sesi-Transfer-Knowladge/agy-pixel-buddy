@@ -109,6 +109,7 @@ class BuddyViewProvider {
 
     const config = vscode.workspace.getConfiguration('agyPixelBuddy');
     const character = config.get('character', 'cat');
+    const trainer = config.get('trainer', 'boss');
     const floatingMode = config.get('floatingMode', 'random');
     const language = config.get('language', 'id');
     const promptReaction = config.get('promptReaction', true);
@@ -120,7 +121,8 @@ class BuddyViewProvider {
       floatingMode,
       language,
       promptReaction,
-      reactionTrigger
+      reactionTrigger,
+      trainer
     );
 
     webviewView.webview.onDidReceiveMessage(async (msg) => {
@@ -128,6 +130,7 @@ class BuddyViewProvider {
       if (msg.type === 'ready') {
         const cfg = vscode.workspace.getConfiguration('agyPixelBuddy');
         this.postState(this.getStateFn());
+        this.postTrainer(cfg.get('trainer', 'boss'));
         this.postFloatingMode(cfg.get('floatingMode', 'random'));
         this.postLanguage(cfg.get('language', 'id'));
         this.postReactionSetting(cfg.get('promptReaction', true), cfg.get('reactionTrigger', 'hook'));
@@ -135,6 +138,10 @@ class BuddyViewProvider {
         await vscode.workspace
           .getConfiguration('agyPixelBuddy')
           .update('character', msg.character, vscode.ConfigurationTarget.Global);
+      } else if (msg.type === 'setTrainer' && typeof msg.trainer === 'string') {
+        await vscode.workspace
+          .getConfiguration('agyPixelBuddy')
+          .update('trainer', msg.trainer, vscode.ConfigurationTarget.Global);
       } else if (msg.type === 'setFloatingMode' && typeof msg.mode === 'string') {
         await vscode.workspace
           .getConfiguration('agyPixelBuddy')
@@ -172,6 +179,12 @@ class BuddyViewProvider {
   postCharacter(character) {
     if (this.view) {
       this.view.webview.postMessage({ type: 'characterUpdate', character });
+    }
+  }
+
+  postTrainer(trainer) {
+    if (this.view) {
+      this.view.webview.postMessage({ type: 'trainerUpdate', trainer });
     }
   }
 
@@ -224,6 +237,7 @@ function activate(context) {
       configPath: DEFAULT_FLOATING_CONFIG_PATH,
       pidPath: DEFAULT_FLOATING_PID_PATH,
       character: config.get('character', 'cat'),
+      trainer: config.get('trainer', 'boss'),
       mode: config.get('floatingMode', 'random'),
       language: config.get('language', 'id'),
       promptReaction: config.get('promptReaction', true),
@@ -250,6 +264,9 @@ function activate(context) {
       const vsCfg = vscode.workspace.getConfiguration('agyPixelBuddy');
       if (typeof diskCfg.character === 'string' && diskCfg.character !== vsCfg.get('character')) {
         await vsCfg.update('character', diskCfg.character, vscode.ConfigurationTarget.Global);
+      }
+      if (typeof diskCfg.trainer === 'string' && diskCfg.trainer !== vsCfg.get('trainer')) {
+        await vsCfg.update('trainer', diskCfg.trainer, vscode.ConfigurationTarget.Global);
       }
       if (typeof diskCfg.moveMode === 'string' && diskCfg.moveMode !== vsCfg.get('floatingMode')) {
         await vsCfg.update('floatingMode', diskCfg.moveMode, vscode.ConfigurationTarget.Global);
@@ -406,6 +423,11 @@ function activate(context) {
       const ch = cfg.get('character', 'cat');
       syncFloatingCharacter(DEFAULT_FLOATING_CONFIG_PATH, ch);
       provider.postCharacter(ch);
+    }
+    if (e.affectsConfiguration('agyPixelBuddy.trainer')) {
+      const tr = cfg.get('trainer', 'boss');
+      updateFloatingConfig(DEFAULT_FLOATING_CONFIG_PATH, { trainer: tr });
+      provider.postTrainer(tr);
     }
     if (e.affectsConfiguration('agyPixelBuddy.floatingMode')) {
       const mode = cfg.get('floatingMode', 'random');

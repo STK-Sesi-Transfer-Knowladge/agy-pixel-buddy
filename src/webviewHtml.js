@@ -16,11 +16,13 @@ function getWebviewHtml(
   initialFloatingMode = 'random',
   initialLanguage = 'id',
   initialPromptReaction = true,
-  initialReactionTrigger = 'hook'
+  initialReactionTrigger = 'hook',
+  initialTrainer = 'boss'
 ) {
   const nonce = getNonce();
   const safeStateJson = JSON.stringify(initialState || { state: 'idle', detail: 'Standing by' }).replace(/</g, '\\u003c');
   const safeChar = JSON.stringify(initialCharacter || 'cat').replace(/</g, '\\u003c');
+  const safeTrainer = JSON.stringify(['boss', 'girl', 'sensei'].includes(initialTrainer) ? initialTrainer : 'boss');
   const safeFloatingMode = JSON.stringify(initialFloatingMode || 'random').replace(/</g, '\\u003c');
   const safeLang = JSON.stringify(initialLanguage === 'en' ? 'en' : 'id');
   const safePromptReaction = JSON.stringify(Boolean(initialPromptReaction));
@@ -177,6 +179,15 @@ function getWebviewHtml(
   </div>
 
   <div>
+    <div class="section-label" id="lblTrainer">Pengasuh / Bos</div>
+    <div class="pill-group" id="trainerButtons">
+      <button type="button" data-trainer="boss">Bos</button>
+      <button type="button" data-trainer="girl">Cewek</button>
+      <button type="button" data-trainer="sensei">Sensei</button>
+    </div>
+  </div>
+
+  <div>
     <div class="section-label" id="lblFloating">Mode Floating</div>
     <div class="pill-group" id="floatingModeButtons">
       <button type="button" data-float-mode="random">Random Move</button>
@@ -226,10 +237,12 @@ function getWebviewHtml(
       const stateLabel = document.getElementById('stateLabel');
       const detailText = document.getElementById('detailText');
       const charButtons = document.getElementById('charButtons');
+      const trainerButtons = document.getElementById('trainerButtons');
       const floatingModeButtons = document.getElementById('floatingModeButtons');
       const langButtons = document.getElementById('langButtons');
       const previewButtons = document.getElementById('previewButtons');
       const lblCharacter = document.getElementById('lblCharacter');
+      const lblTrainer = document.getElementById('lblTrainer');
       const lblFloating = document.getElementById('lblFloating');
       const lblLanguage = document.getElementById('lblLanguage');
       const lblReaction = document.getElementById('lblReaction');
@@ -240,6 +253,7 @@ function getWebviewHtml(
       let liveState = ${safeStateJson};
       let previewMode = 'live';
       let currentChar = ${safeChar};
+      let currentTrainer = ${safeTrainer};
       let floatingMode = ${safeFloatingMode};
       let currentLang = ${safeLang};
       let promptReactionEnabled = ${safePromptReaction};
@@ -262,6 +276,7 @@ function getWebviewHtml(
       const UI_COPY = {
         en: {
           lblCharacter: 'Character',
+          lblTrainer: 'Caretaker / Whipper',
           lblFloating: 'Floating Mode',
           lblLanguage: 'Language',
           lblReaction: 'Reaction (Pet / Whip)',
@@ -269,6 +284,7 @@ function getWebviewHtml(
           reactions: { hook: 'Every Hook', prompt: 'New Prompt', off: 'Off' },
           testReaction: 'Test',
           chars: { cat: 'Cat', bot: 'Bot', dev: 'Dev' },
+          trainers: { boss: 'Boss', girl: 'Girl', sensei: 'Sensei' },
           modes: { random: 'Random Move', sticky: 'Sticky', hidden: 'Hide (Off)' },
           previews: { live: 'Live Hook', thinking: 'Think', coding: 'Code', reading: 'Read', terminal: 'Terminal', done: 'Done' },
           previewDetails: {
@@ -281,6 +297,7 @@ function getWebviewHtml(
         },
         id: {
           lblCharacter: 'Karakter',
+          lblTrainer: 'Pengasuh / Pencambuk',
           lblFloating: 'Mode Floating',
           lblLanguage: 'Bahasa',
           lblReaction: 'Reaksi (Elus / Cambuk)',
@@ -288,6 +305,7 @@ function getWebviewHtml(
           reactions: { hook: 'Tiap Hook', prompt: 'Prompt Baru', off: 'Nonaktif' },
           testReaction: 'Tes Reaksi',
           chars: { cat: 'Kucing', bot: 'Bot', dev: 'Dev' },
+          trainers: { boss: 'Bos', girl: 'Cewek', sensei: 'Sensei' },
           modes: { random: 'Gerak Acak', sticky: 'Sticky (Diam)', hidden: 'Sembunyikan' },
           previews: { live: 'Live Hook', thinking: 'Mikir', coding: 'Ngoding', reading: 'Baca', terminal: 'Terminal', done: 'Selesai' },
           previewDetails: {
@@ -356,6 +374,7 @@ function getWebviewHtml(
         detailText.textContent = previewMode !== 'live' ? display.detail : (localizeDetail(display.detail) || label);
 
         lblCharacter.textContent = copy.lblCharacter;
+        if (lblTrainer) lblTrainer.textContent = copy.lblTrainer;
         lblFloating.textContent = copy.lblFloating;
         lblLanguage.textContent = copy.lblLanguage;
         lblReaction.textContent = copy.lblReaction;
@@ -376,6 +395,12 @@ function getWebviewHtml(
           btn.textContent = copy.chars[btn.dataset.char] || btn.textContent;
           btn.classList.toggle('active', btn.dataset.char === currentChar);
         });
+        if (trainerButtons) {
+          trainerButtons.querySelectorAll('button').forEach((btn) => {
+            btn.textContent = copy.trainers[btn.dataset.trainer] || btn.textContent;
+            btn.classList.toggle('active', btn.dataset.trainer === currentTrainer);
+          });
+        }
         floatingModeButtons.querySelectorAll('button').forEach((btn) => {
           btn.textContent = copy.modes[btn.dataset.floatMode] || btn.textContent;
           btn.classList.toggle('active', btn.dataset.floatMode === floatingMode);
@@ -584,8 +609,8 @@ function getWebviewHtml(
           : state === 'coding' || state === 'terminal'
             ? (tick % 4 < 2 ? -1 : 0)
             : (tick % 20 < 10 ? 0 : 1);
-        const bx = 50 + (hit ? 2 : 0);
-        const by = 27 + bob - (hit ? 1 : 0);
+        const bx = 50 - (hit ? 2 : 0);
+        const by = 27 + bob + (hit ? 1 : 0);
 
         // Antenna
         const antColor = hit
@@ -658,8 +683,8 @@ function getWebviewHtml(
           : state === 'coding' || state === 'terminal'
             ? (tick % 4 < 2 ? -1 : 0)
             : (tick % 24 < 12 ? 0 : 1);
-        const dx = 50 + (hit ? 2 : 0);
-        const dy = 27 + bob - (hit ? 1 : 0);
+        const dx = 50 - (hit ? 2 : 0);
+        const dy = 27 + bob + (hit ? 1 : 0);
         const blink = state === 'idle' && (tick % 46 > 42);
 
         // Headphones & hair
@@ -708,45 +733,129 @@ function getWebviewHtml(
         px(45, 47, 11, 1, '#94a3b8');
       }
 
-      function drawPromptReaction(char) {
+      function drawHumanActor(hx, hy, trainer, mood) {
+        const sleeve = trainer === 'girl' ? '#f43f5e' : trainer === 'sensei' ? '#0f766e' : '#334155';
+
+        // Head & face (facing left, larger scale)
+        px(hx + 2, hy + 6, 10, 8, '#fde68a');
+
+        if (trainer === 'girl') {
+          // Chestnut hair, bangs, long ponytail & yellow ribbon
+          px(hx + 2, hy + 1, 11, 5, '#92400e');
+          px(hx + 1, hy + 5, 2, 5, '#92400e');
+          px(hx + 11, hy + 4, 3, 11, '#78350f');
+          px(hx + 14, hy + 7, 3, 10, '#92400e');
+          px(hx + 12, hy + 5, 3, 3, '#fde047');
+        } else if (trainer === 'sensei') {
+          // Silver swept hair + purple headband + tails
+          px(hx + 2, hy, 11, 4, '#e2e8f0');
+          px(hx + 5, hy - 1, 4, 1, '#f8fafc');
+          px(hx + 11, hy + 2, 4, 5, '#cbd5e1');
+          px(hx + 1, hy + 4, 12, 2, '#7c3aed');
+          px(hx + 13, hy + 4, 3, 4, '#a855f7');
+        } else {
+          // Boss red cap facing left + dark back hair
+          px(hx + 2, hy, 11, 5, '#dc2626');
+          px(hx + 4, hy, 6, 1, '#ef4444');
+          px(hx - 2, hy + 4, 6, 2, '#991b1b');
+          px(hx + 11, hy + 5, 3, 5, '#1e293b');
+        }
+
+        // Facial expression (warm smile when petting vs fierce focus when whipping)
+        if (trainer === 'sensei') {
+          px(hx + 2, hy + 8, 6, 3, '#0f172a');
+          px(hx + 3, hy + 9, 3, 1, '#38bdf8');
+          px(hx + 2, hy + 11, 4, 1, '#cbd5e1');
+          px(hx + 3, hy + 12, 3, 1, mood === 'pet' ? '#b45309' : '#94a3b8');
+        } else if (mood === 'pet') {
+          px(hx + 4, hy + 9, 2, 1, '#0f172a');
+          px(hx + 5, hy + 8, 1, 1, '#0f172a');
+          px(hx + 2, hy + 11, 2, 1, '#fda4af');
+          px(hx + 4, hy + 12, 3, 1, '#b45309');
+        } else {
+          px(hx + 3, hy + 8, 4, 1, '#1e293b');
+          px(hx + 4, hy + 9, 2, 2, '#0f172a');
+          px(hx + 4, hy + 9, 1, 1, '#ffffff');
+          px(hx + 3, hy + 12, 3, 1, '#b45309');
+        }
+
+        // Torso & outfit (standing behind desk down to y = 49)
+        px(hx + 1, hy + 14, 13, 17, sleeve);
+        if (trainer === 'girl') {
+          px(hx + 2, hy + 14, 4, 7, '#fef3c7');
+          px(hx + 6, hy + 15, 7, 3, '#fb7185');
+          px(hx + 1, hy + 29, 13, 2, '#1e293b');
+        } else if (trainer === 'sensei') {
+          px(hx + 2, hy + 14, 4, 9, '#fef3c7');
+          px(hx + 1, hy + 27, 13, 3, '#fbbf24');
+        } else {
+          px(hx + 2, hy + 14, 4, 8, '#f8fafc');
+          px(hx + 3, hy + 16, 2, 7, '#ef4444');
+          px(hx + 1, hy + 29, 13, 2, '#78350f');
+        }
+        return sleeve;
+      }
+
+      function drawPromptReaction(char, trainer) {
         if (char === 'cat') {
-          const hx = 53 + Math.round(Math.sin(tick * 0.9) * 3);
-          const hy = 24 + (tick % 2);
-          px(hx, hy, 7, 2, '#fde68a');
-          px(hx + 1, hy + 2, 5, 1, '#f59e0b');
-          px(hx + 6, hy - 1, 2, 2, '#fde68a');
+          const hx = 69;
+          const hy = 18;
+          const sleeve = drawHumanActor(hx, hy, trainer, 'pet');
+
+          // Reaching arm & gentle stroking hand over the cat's head
+          const stroke = Math.round(Math.sin(tick * 0.9) * 3);
+          const handY = 26 + (tick % 2);
+          px(hx - 4, hy + 13, 6, 4, sleeve);
+          px(hx - 8, hy + 10, 5, 3, sleeve);
+          px(54 + stroke, handY, 8, 3, '#fde68a');
+          px(55 + stroke, handY + 3, 6, 1, '#f59e0b');
 
           const lift = (18 - reactionTicksLeft) % 8;
-          for (const [ox, oy, col] of [[68, 28 - lift, '#fb7185'], [72, 32 - ((lift + 4) % 8), '#f43f5e']]) {
+          for (const [ox, oy, col] of [[44, 24 - lift, '#fb7185'], [65, 22 - ((lift + 4) % 8), '#f43f5e']]) {
             px(ox, oy, 1, 1, col);
             px(ox + 2, oy, 1, 1, col);
             px(ox, oy + 1, 3, 1, col);
             px(ox + 1, oy + 2, 1, 1, col);
           }
         } else {
+          // Larger human character standing behind right side of desk cracking a whip left onto buddy
           const phase = (18 - reactionTicksLeft) % 8;
-          px(41, 39, 2, 4, '#78350f');
-          px(42, 37, 1, 2, '#92400e');
+          const hx = 75;
+          const hy = 18;
+          const sleeve = drawHumanActor(hx, hy, trainer, 'whip');
+
+          // Animated arm & whip (wind-up -> crack -> follow-through)
           if (phase < 3) {
-            px(41, 34, 2, 3, '#d97706');
-            px(40, 31, 2, 3, '#f59e0b');
+            px(hx + 7, hy + 12, 4, 5, sleeve);
+            px(hx + 9, hy + 8, 3, 4, '#fde68a');
+            px(hx + 10, hy + 4, 2, 4, '#78350f');
+            px(hx + 12, hy + 1, 3, 4, '#d97706');
+            px(hx + 15, hy + 3, 2, 4, '#f59e0b');
           } else if (phase < 6) {
-            px(43, 36, 3, 1, '#b45309');
-            px(45, 35, 4, 1, '#d97706');
-            px(48, 36, 3, 1, '#f59e0b');
+            px(hx - 4, hy + 16, 7, 4, sleeve);
+            px(hx - 7, hy + 16, 4, 3, '#fde68a');
+            px(hx - 10, hy + 15, 3, 2, '#78350f');
+            px(hx - 13, hy + 16, 4, 1, '#b45309');
+            px(hx - 17, hy + 17, 5, 1, '#d97706');
+            px(hx - 21, hy + 18, 5, 1, '#f59e0b');
             if (phase === 3 || phase === 4) {
-              px(50, 34, 1, 1, '#fef08a');
-              px(52, 35, 2, 2, '#ffffff');
-              px(50, 37, 1, 1, '#fb7185');
-              px(53, 33, 1, 1, '#fde047');
+              px(54, 34, 2, 1, '#fef08a');
+              px(52, 36, 3, 2, '#ffffff');
+              px(55, 39, 2, 1, '#fb7185');
+              px(52, 33, 1, 1, '#fde047');
             }
           } else {
-            px(43, 38, 4, 1, '#b45309');
-            px(46, 39, 3, 1, '#d97706');
+            px(hx - 2, hy + 19, 5, 4, sleeve);
+            px(hx - 5, hy + 20, 3, 3, '#fde68a');
+            px(hx - 8, hy + 21, 3, 1, '#78350f');
+            px(hx - 12, hy + 22, 4, 1, '#b45309');
+            px(hx - 16, hy + 24, 4, 1, '#d97706');
           }
-          px(68, 23, 2, 4, '#ef4444');
-          px(68, 28, 2, 2, '#ef4444');
-          px(71, 30 + (phase % 2), 2, 2, '#60a5fa');
+
+          // Startled ! above-left of buddy & sweat drop
+          px(45, 19, 2, 5, '#ef4444');
+          px(45, 25, 2, 2, '#ef4444');
+          px(66, 26 + (phase % 2), 2, 2, '#60a5fa');
         }
       }
 
@@ -810,7 +919,7 @@ function getWebviewHtml(
           drawCat(state, reacting);
         }
         if (reacting) {
-          drawPromptReaction(currentChar);
+          drawPromptReaction(currentChar, currentTrainer);
           reactionTicksLeft -= 1;
         } else {
           drawOverlayParticles(state);
@@ -826,6 +935,16 @@ function getWebviewHtml(
         syncUiControls();
         vscode.postMessage({ type: 'setCharacter', character: currentChar });
       });
+
+      if (trainerButtons) {
+        trainerButtons.addEventListener('click', (event) => {
+          const btn = event.target.closest('button[data-trainer]');
+          if (!btn) return;
+          currentTrainer = btn.dataset.trainer;
+          syncUiControls();
+          vscode.postMessage({ type: 'setTrainer', trainer: currentTrainer });
+        });
+      }
 
       previewButtons.addEventListener('click', (event) => {
         const btn = event.target.closest('button[data-preview]');
@@ -890,6 +1009,9 @@ function getWebviewHtml(
           syncUiControls();
         } else if (msg.type === 'characterUpdate' && msg.character) {
           currentChar = msg.character;
+          syncUiControls();
+        } else if (msg.type === 'trainerUpdate' && msg.trainer) {
+          currentTrainer = msg.trainer;
           syncUiControls();
         } else if (msg.type === 'floatingModeUpdate' && msg.mode) {
           floatingMode = msg.mode;

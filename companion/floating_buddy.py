@@ -26,6 +26,7 @@ DEFAULT_LOCK_PATH = Path.home() / ".gemini" / "antigravity" / "buddy-floating.lo
 DEFAULT_PID_PATH = Path.home() / ".gemini" / "antigravity" / "buddy-floating.pid"
 
 VALID_CHARS = ("cat", "bot", "dev")
+VALID_TRAINERS = ("boss", "girl", "sensei")
 VALID_MODES = ("random", "sticky")
 ALL_MODES = ("random", "sticky", "hidden")
 VALID_BUBBLE_MODES = ("auto", "always", "off")
@@ -78,6 +79,10 @@ UI_STRINGS = {
         "char_cat": "Cat",
         "char_bot": "Bot",
         "char_dev": "Dev",
+        "trainer": "Caretaker / Whipper",
+        "trainer_boss": "Boss",
+        "trainer_girl": "Girl",
+        "trainer_sensei": "Sensei",
         "movement": "Movement",
         "mode_random": "Random Move",
         "mode_sticky": "Sticky (Stay Here)",
@@ -101,6 +106,10 @@ UI_STRINGS = {
         "char_cat": "Kucing (Cat)",
         "char_bot": "Robot (Bot)",
         "char_dev": "Dev",
+        "trainer": "Pengasuh / Pencambuk",
+        "trainer_boss": "Bos (Boss)",
+        "trainer_girl": "Cewek (Girl)",
+        "trainer_sensei": "Sensei",
         "movement": "Mode Gerak",
         "mode_random": "Gerak Acak (Random)",
         "mode_sticky": "Sticky (Diam di Sini)",
@@ -206,12 +215,17 @@ def normalize_config(
     fallback_lang: str = "id",
     fallback_reaction: bool = True,
     fallback_trigger: str = "hook",
+    fallback_trainer: str = "boss",
 ) -> Dict[str, Any]:
     """Normalize persisted floating buddy preferences with safe defaults."""
     data = raw if isinstance(raw, dict) else {}
     char = data.get("character") if data.get("character") in VALID_CHARS else fallback_char
     if char not in VALID_CHARS:
         char = "cat"
+
+    trainer = data.get("trainer") if data.get("trainer") in VALID_TRAINERS else fallback_trainer
+    if trainer not in VALID_TRAINERS:
+        trainer = "boss"
 
     mode = normalize_move_mode(data.get("moveMode"), fallback_mode)
     bubble = data.get("bubbleMode") if data.get("bubbleMode") in VALID_BUBBLE_MODES else "auto"
@@ -251,6 +265,7 @@ def normalize_config(
 
     return {
         "character": char,
+        "trainer": trainer,
         "moveMode": mode,
         "bubbleMode": bubble,
         "language": lang,
@@ -584,6 +599,7 @@ def run_gui(args: argparse.Namespace) -> int:
                 fallback_lang=args.language,
                 fallback_reaction=args.prompt_reaction,
                 fallback_trigger=args.reaction_trigger,
+                fallback_trainer=args.trainer,
             )
             if self.config["moveMode"] == "hidden":
                 self.config["moveMode"] = normalize_move_mode(args.mode, "random")
@@ -664,7 +680,8 @@ def run_gui(args: argparse.Namespace) -> int:
 
         def _apply_window_size(self) -> None:
             sw, sh = self._sprite_area_size()
-            win_w = max(sw + 48, 244)
+            s = self._scale()
+            win_w = max(sw + 34 * s, 260)
             win_h = sh + self._bubble_height() + 10
             self.resize(win_w, win_h)
 
@@ -758,6 +775,7 @@ def run_gui(args: argparse.Namespace) -> int:
                                 fallback_lang=self._lang(),
                                 fallback_reaction=self.config.get("promptReaction", True),
                                 fallback_trigger=self.config.get("reactionTrigger", "hook"),
+                                fallback_trainer=self.config.get("trainer", "boss"),
                             )
                             if merged["moveMode"] == "hidden":
                                 QApplication.quit()
@@ -926,7 +944,17 @@ def run_gui(args: argparse.Namespace) -> int:
         def _update_click_mask(self) -> None:
             sx, sy = self._sprite_origin()
             sw, sh = self._sprite_area_size()
-            region = QRegion(QRect(sx, sy, sw, sh))
+            s = self._scale()
+            if self.reaction_ticks_left > 0:
+                extra = 16 * s
+                sprite_rect = (
+                    QRect(sx, sy, sw + extra, sh)
+                    if self.facing_right
+                    else QRect(sx - extra, sy, sw + extra, sh)
+                )
+            else:
+                sprite_rect = QRect(sx, sy, sw, sh)
+            region = QRegion(sprite_rect)
             if self._should_show_bubble():
                 r = self._bubble_rect()
                 # Pixel-chamfered card + pointer tail matches _draw_bubble exactly (zero jagged corner clipping)
@@ -1165,8 +1193,8 @@ def run_gui(args: argparse.Namespace) -> int:
         def _draw_bot(self, px: Any, st: str, reacting: bool = False) -> None:
             phase = (26 - self.reaction_ticks_left) % 10
             hit = reacting and phase in (4, 5, 6)
-            bx = 14 + (2 if hit else 0)
-            by = 4 - (1 if hit else 0)
+            bx = 14 - (1 if hit else 0)
+            by = 4 + (1 if hit else 0)
             ant_color = (
                 "#fb7185"
                 if hit
@@ -1226,8 +1254,8 @@ def run_gui(args: argparse.Namespace) -> int:
         def _draw_dev(self, px: Any, st: str, reacting: bool = False) -> None:
             phase = (26 - self.reaction_ticks_left) % 10
             hit = reacting and phase in (4, 5, 6)
-            dx = 14 + (2 if hit else 0)
-            dy = 3 - (1 if hit else 0)
+            dx = 14 - (1 if hit else 0)
+            dy = 3 + (1 if hit else 0)
             blink = st == "idle" and (self.tick % 46 > 42)
             px(dx + 2, dy, 11, 4, "#312e81")
             px(dx + 1, dy + 3, 2, 6, "#ec4899")
@@ -1264,47 +1292,130 @@ def run_gui(args: argparse.Namespace) -> int:
                 px(dx - 1, dy + 17 - l_up, 4, 3, "#fde68a")
                 px(dx + 5, dy + 18 - r_up, 4, 3, "#fde68a")
 
-        def _draw_prompt_reaction(self, px: Any, char: str) -> None:
-            if char == "cat":
-                # Gentle petting hand stroking over the cat's head + floating hearts
-                hx = 17 + int(round(math.sin(self.tick * 0.75) * 3))
-                hy = 1 + (self.tick % 2)
-                px(hx, hy, 7, 2, "#fde68a")
-                px(hx + 1, hy + 2, 5, 1, "#f59e0b")
-                px(hx + 6, hy - 1, 2, 2, "#fde68a")  # wrist
+        def _draw_human_actor(self, px: Any, hx: int, hy: int, trainer: str, mood: str) -> str:
+            sleeve = "#f43f5e" if trainer == "girl" else "#0f766e" if trainer == "sensei" else "#334155"
 
-                # Rising pixel hearts on the right
+            # Head & face (facing left, larger proportions)
+            px(hx + 2, hy + 4, 8, 6, "#fde68a")
+
+            if trainer == "girl":
+                px(hx + 2, hy + 1, 9, 3, "#92400e")
+                px(hx + 1, hy + 3, 2, 4, "#92400e")
+                px(hx + 9, hy + 3, 3, 9, "#78350f")
+                px(hx + 12, hy + 5, 2, 7, "#92400e")
+                px(hx + 10, hy + 4, 2, 2, "#fde047")
+            elif trainer == "sensei":
+                px(hx + 2, hy, 9, 3, "#e2e8f0")
+                px(hx + 10, hy + 1, 3, 2, "#cbd5e1")
+                px(hx + 1, hy + 3, 10, 1, "#7c3aed")
+                px(hx + 11, hy + 3, 2, 3, "#a855f7")
+                px(hx + 9, hy + 4, 3, 4, "#cbd5e1")
+            else:
+                px(hx + 2, hy, 9, 4, "#dc2626")
+                px(hx + 3, hy, 6, 1, "#ef4444")
+                px(hx - 1, hy + 3, 5, 1, "#991b1b")
+                px(hx + 9, hy + 4, 3, 4, "#1e293b")
+
+            # Expression: warm/gentle while petting vs fierce focus while whipping
+            if trainer == "sensei":
+                px(hx + 2, hy + 5, 5, 2, "#0f172a")
+                px(hx + 3, hy + 5, 2, 1, "#38bdf8")
+                px(hx + 2, hy + 8, 3, 1, "#cbd5e1")
+                px(hx + 3, hy + 9, 2, 1, "#b45309" if mood == "pet" else "#94a3b8")
+            elif mood == "pet":
+                px(hx + 3, hy + 6, 2, 1, "#0f172a")
+                px(hx + 4, hy + 5, 1, 1, "#0f172a")
+                px(hx + 2, hy + 8, 2, 1, "#fda4af")
+                px(hx + 3, hy + 9, 3, 1, "#b45309")
+            else:
+                px(hx + 3, hy + 5, 3, 1, "#1e293b")
+                px(hx + 4, hy + 6, 2, 2, "#0f172a")
+                px(hx + 4, hy + 6, 1, 1, "#ffffff")
+                px(hx + 3, hy + 9, 2, 1, "#b45309")
+
+            # Torso, outfit details, legs & shoes (standing down to y = 25)
+            px(hx + 1, hy + 10, 11, 8, sleeve)
+            if trainer == "girl":
+                px(hx + 2, hy + 10, 3, 5, "#fef3c7")
+                px(hx + 5, hy + 11, 6, 2, "#fb7185")
+                px(hx + 1, hy + 18, 11, 3, "#1e293b")
+                px(hx + 3, hy + 21, 2, 2, "#fde68a")
+                px(hx + 8, hy + 21, 2, 2, "#fde68a")
+                px(hx + 2, hy + 23, 4, 2, "#4c1d95")
+                px(hx + 7, hy + 23, 4, 2, "#4c1d95")
+            elif trainer == "sensei":
+                px(hx + 2, hy + 10, 3, 6, "#fef3c7")
+                px(hx + 1, hy + 16, 11, 2, "#fbbf24")
+                px(hx + 1, hy + 18, 5, 5, "#134e4a")
+                px(hx + 7, hy + 18, 5, 5, "#134e4a")
+                px(hx + 1, hy + 23, 4, 2, "#78350f")
+                px(hx + 7, hy + 23, 4, 2, "#78350f")
+            else:
+                px(hx + 2, hy + 10, 3, 5, "#f8fafc")
+                px(hx + 2, hy + 12, 1, 4, "#ef4444")
+                px(hx + 2, hy + 18, 4, 5, "#1e293b")
+                px(hx + 7, hy + 18, 4, 5, "#1e293b")
+                px(hx + 1, hy + 23, 5, 2, "#0f172a")
+                px(hx + 7, hy + 23, 5, 2, "#0f172a")
+            return sleeve
+
+        def _draw_prompt_reaction(self, px: Any, char: str) -> None:
+            trainer = self.config.get("trainer", "boss")
+            if char == "cat":
+                # Selected human character standing next to cat, reaching arm to pet cat's head
+                hx, hy = 30, 1
+                sleeve = self._draw_human_actor(px, hx, hy, trainer, "pet")
+
+                stroke = int(round(math.sin(self.tick * 0.75) * 2))
+                hand_y = 4 + (self.tick % 2)
+                px(hx - 2, hy + 9, 4, 3, sleeve)
+                px(hx - 5, hy + 7, 4, 2, sleeve)
+                px(20 + stroke, hand_y, 6, 2, "#fde68a")
+                px(21 + stroke, hand_y + 2, 4, 1, "#f59e0b")
+
+                # Rising pixel hearts
                 lift = (26 - self.reaction_ticks_left) % 8
-                for offset_x, offset_y, col in ((30, 9 - lift, "#fb7185"), (33, 13 - ((lift + 4) % 8), "#f43f5e")):
+                for offset_x, offset_y, col in ((9, 8 - (lift % 6), "#fb7185"), (27, 7 - ((lift + 3) % 5), "#f43f5e")):
                     px(offset_x, offset_y, 1, 1, col)
                     px(offset_x + 2, offset_y, 1, 1, col)
                     px(offset_x, offset_y + 1, 3, 1, col)
                     px(offset_x + 1, offset_y + 2, 1, 1, col)
             else:
-                # Comedic cartoon whip crack from left onto character + startled ! & sweat drop
+                # Larger selected human character standing on the right cracking a whip left onto the buddy
                 phase = (26 - self.reaction_ticks_left) % 10
-                px(3, 16, 2, 4, "#78350f")
-                px(4, 14, 1, 2, "#92400e")
-                if phase < 3:
-                    px(3, 11, 2, 3, "#d97706")
-                    px(2, 8, 2, 3, "#f59e0b")
-                elif phase < 7:
-                    px(5, 13, 3, 1, "#b45309")
-                    px(7, 12, 4, 1, "#d97706")
-                    px(11, 13, 4, 1, "#f59e0b")
-                    if phase in (4, 5):
-                        px(14, 11, 1, 1, "#fef08a")
-                        px(16, 12, 2, 2, "#ffffff")
-                        px(14, 14, 1, 1, "#fb7185")
-                        px(17, 10, 1, 1, "#fde047")
-                else:
-                    px(5, 15, 4, 1, "#b45309")
-                    px(8, 16, 4, 1, "#d97706")
+                hx, hy = 35, 1
+                sleeve = self._draw_human_actor(px, hx, hy, trainer, "whip")
 
-                # Exclamation mark & sweat drop on right
-                px(31, 3, 2, 4, "#ef4444")
-                px(31, 8, 2, 2, "#ef4444")
-                px(33, 11 + (phase % 2), 2, 2, "#60a5fa")
+                # Animated arm & whip (wind-up -> crack -> follow-through)
+                if phase < 3:
+                    px(hx + 6, hy + 8, 3, 4, sleeve)
+                    px(hx + 8, hy + 6, 2, 2, "#fde68a")
+                    px(hx + 9, hy + 3, 2, 3, "#78350f")
+                    px(hx + 11, hy + 1, 2, 3, "#d97706")
+                    px(hx + 13, hy + 2, 2, 3, "#f59e0b")
+                elif phase < 7:
+                    px(hx - 2, hy + 11, 5, 3, sleeve)
+                    px(hx - 4, hy + 11, 3, 2, "#fde68a")
+                    px(hx - 6, hy + 10, 2, 1, "#78350f")
+                    px(hx - 8, hy + 11, 3, 1, "#b45309")
+                    px(hx - 10, hy + 12, 3, 1, "#d97706")
+                    px(hx - 12, hy + 13, 3, 1, "#f59e0b")
+                    if phase in (4, 5):
+                        px(23, 12, 1, 1, "#fef08a")
+                        px(22, 14, 2, 2, "#ffffff")
+                        px(24, 16, 1, 1, "#fb7185")
+                        px(21, 12, 1, 1, "#fde047")
+                else:
+                    px(hx - 1, hy + 13, 4, 3, sleeve)
+                    px(hx - 3, hy + 14, 2, 2, "#fde68a")
+                    px(hx - 5, hy + 15, 2, 1, "#78350f")
+                    px(hx - 8, hy + 16, 3, 1, "#b45309")
+                    px(hx - 10, hy + 18, 3, 1, "#d97706")
+
+                # Exclamation mark above-left of buddy & sweat drop
+                px(10, 2, 2, 4, "#ef4444")
+                px(10, 7, 2, 2, "#ef4444")
+                px(28, 3 + (phase % 2), 2, 2, "#60a5fa")
 
         def _draw_particles(self, px: Any, st: str, accent_hex: str) -> None:
             if st == "thinking":
@@ -1391,7 +1502,8 @@ def run_gui(args: argparse.Namespace) -> int:
                 if self.drag_moved:
                     self._save_config()
                 elif should_trigger_click_reaction(self.effective_state, self.drag_moved):
-                    self.reaction_ticks_left = 20
+                    self.reaction_ticks_left = 26
+                    self._update_click_mask()
                     self.update()
                 event.accept()
 
@@ -1412,6 +1524,13 @@ def run_gui(args: argparse.Namespace) -> int:
                 act.setChecked(self.config["character"] == ch)
                 act.triggered.connect(lambda _checked=False, c=ch: self._set_character(c))
                 char_menu.addAction(act)
+
+            trainer_menu = menu.addMenu(self._tr("trainer"))
+            for tr in VALID_TRAINERS:
+                act = QAction(self._tr(f"trainer_{tr}"), self, checkable=True)
+                act.setChecked(self.config.get("trainer", "boss") == tr)
+                act.triggered.connect(lambda _checked=False, t=tr: self._set_trainer(t))
+                trainer_menu.addAction(act)
 
             mode_menu = menu.addMenu(self._tr("movement"))
             for mode in VALID_MODES:
@@ -1479,6 +1598,11 @@ def run_gui(args: argparse.Namespace) -> int:
 
         def _set_character(self, char: str) -> None:
             self.config["character"] = char
+            self._save_config()
+            self.update()
+
+        def _set_trainer(self, trainer: str) -> None:
+            self.config["trainer"] = trainer
             self._save_config()
             self.update()
 
@@ -1574,6 +1698,7 @@ def parse_args(argv: Optional[list] = None) -> argparse.Namespace:
     parser.add_argument("--lock-file", default=str(DEFAULT_LOCK_PATH))
     parser.add_argument("--pid-file", default=str(DEFAULT_PID_PATH))
     parser.add_argument("--character", default="cat", choices=VALID_CHARS)
+    parser.add_argument("--trainer", default="boss", choices=VALID_TRAINERS)
     parser.add_argument("--mode", default="random", choices=VALID_MODES)
     parser.add_argument("--language", default="id", choices=VALID_LANGS)
     parser.add_argument("--prompt-reaction", dest="prompt_reaction", action="store_true", default=True)

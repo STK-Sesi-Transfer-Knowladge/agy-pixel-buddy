@@ -6,9 +6,10 @@
 
 **An animated real-time pixel-art companion for Antigravity IDE that reacts whenever AI is thinking, coding, reading files, running terminal commands, or finishing a task.**
 
-![Version](https://img.shields.io/badge/version-0.1.1-34d399?style=flat-square)
+![Version](https://img.shields.io/badge/version-0.2.0-34d399?style=flat-square)
 ![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.85.0-60a5fa?style=flat-square)
 ![Characters](https://img.shields.io/badge/characters-Cat%20%7C%20Bot%20%7C%20Dev-fbbf24?style=flat-square)
+![Trainers](https://img.shields.io/badge/caretakers-Boss%20%7C%20Girl%20%7C%20Sensei-f43f5e?style=flat-square)
 ![Languages](https://img.shields.io/badge/UI-ID%20%26%20EN-c084fc?style=flat-square)
 
 </div>
@@ -17,7 +18,7 @@
 
 ## Characters & Animations
 
-Choose from **3 pixel-art characters**, each with distinct state animations and a **signature prompt reaction** (gentle petting for Cat, comedic whip crack for Bot & Dev):
+Choose from **3 pixel-art buddies** (`cat`, `bot`, `dev`) and **3 selectable human caretakers / whippers** (`boss`, `girl`, `sensei`) who appear during reaction animations (gentle head petting for Cat, comedic whip crack for Bot & Dev):
 
 <table>
   <thead>
@@ -44,19 +45,19 @@ Choose from **3 pixel-art characters**, each with distinct state animations and 
         <strong>Cozy Studio Cat</strong><br/>
         • Wagging tail &amp; blinking eyes<br/>
         • Fast paw-typing during <em>coding/terminal</em><br/>
-        • <strong>Special Reaction:</strong> Gentle head petting + floating hearts &amp; happy <code>^ ^</code> eyes
+        • <strong>Special Reaction:</strong> Gentle head petting by your chosen caretaker + floating hearts &amp; happy <code>^ ^</code> eyes
       </td>
       <td>
         <strong>Cyberpunk Visor Bot</strong><br/>
         • Antenna &amp; visor LEDs shift color by activity<br/>
         • Scanning visor animation while thinking<br/>
-        • <strong>Special Reaction:</strong> Comedic whip crack + startled <code>&gt; &lt;</code> visor &amp; sweat drop
+        • <strong>Special Reaction:</strong> Comedic whip crack by your chosen whipper + startled <code>&gt; &lt;</code> visor &amp; sweat drop
       </td>
       <td>
         <strong>Hoodie &amp; Headphones Dev</strong><br/>
         • Signature purple hoodie &amp; pink headphones<br/>
         • Rapid typing &amp; code-scanning glances<br/>
-        • <strong>Special Reaction:</strong> Comedic whip crack + wide startled eyes &amp; <code>!</code> alert
+        • <strong>Special Reaction:</strong> Comedic whip crack by your chosen whipper + wide startled eyes &amp; <code>!</code> alert
       </td>
     </tr>
   </tbody>
@@ -71,7 +72,7 @@ Choose from **3 pixel-art characters**, each with distinct state animations and 
   - **Sidebar Studio & Status Bar**: A 96×72 night studio scene in the Activity Bar complete with a starry window, steaming coffee mug, reactive monitor, state preview buttons, and a live Status Bar indicator (`Agy: Coding…`, `Agy: Thinking…`, etc.).
   - **Floating Desktop Overlay (Linux X11 + PyQt5)**: A frameless, always-on-top transparent buddy that tracks the focused Antigravity IDE window and can roam freely (*Random Move*) or stay pinned (*Sticky*).
 - **Multi-Workspace Aware**: Tracks per-workspace activity independently via `~/.gemini/antigravity/buddy-workspaces.json`.
-- **Interactive Reactions (Pet / Whip)**: Trigger animations on every hook change (`hook`), on new prompts only (`prompt`), on click while `idle`, or via the **Test** button.
+- **Interactive Reactions (Pet / Whip) with 3 Human Caretakers**: Pick between **Boss (`boss`)**, **Girl (`girl`)**, or **Sensei (`sensei`)** to pet `cat` or crack a whip for `bot`/`dev` on every hook change (`hook`), on new prompts only (`prompt`), on click while `idle`, or via the **Test** button.
 - **Bilingual UI (EN & ID)**: Supports both **English** (`en`) and **Bahasa Indonesia** (`id`) across the sidebar, floating bubble, and status bar.
 
 ---
@@ -99,10 +100,10 @@ Choose from **3 pixel-art characters**, each with distinct state animations and 
 Build the `.vsix` package or use the prebuilt package in the repository:
 
 ```bash
-# Option A: Build via bash script (outputs dist/agy-pixel-buddy-0.1.1.vsix)
+# Option A: Build via bash script (outputs dist/agy-pixel-buddy-0.2.0.vsix)
 ./scripts/build-vsix.sh
 
-# Option B: Build via Python script (outputs agy-pixel-buddy-0.1.1.vsix)
+# Option B: Build via Python script (outputs agy-pixel-buddy-0.2.0.vsix)
 python3 scripts/package-vsix.py
 ```
 
@@ -143,7 +144,7 @@ The hook reads JSON payloads from `stdin`, atomically updates `~/.gemini/antigra
 - **Left-Click & Drag**: Move the buddy anywhere inside the IDE window bounds.
 - **Left-Click (while `idle`)**: Trigger the reaction animation (pet / whip).
 - **Double-Click**: Instantly switch to the next character.
-- **Right-Click**: Open the context menu (Character, Movement mode, Status Bubble `Auto`/`Always`/`Off`, Size `2x`/`3x`/`4x`, Language, Reaction trigger, &amp; Test Reaction Animation).
+- **Right-Click**: Open the context menu (Character, Caretaker / Whipper, Movement mode, Status Bubble `Auto`/`Always`/`Off`, Size `2x`/`3x`/`4x`, Language, Reaction trigger, &amp; Test Reaction Animation).
 
 ---
 
@@ -152,6 +153,7 @@ The hook reads JSON payloads from `stdin`, atomically updates `~/.gemini/antigra
 | Setting | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `agyPixelBuddy.character` | `"cat" \| "bot" \| "dev"` | `"cat"` | Active pixel character sprite |
+| `agyPixelBuddy.trainer` | `"boss" \| "girl" \| "sensei"` | `"boss"` | Human caretaker / whipper character for reaction animations |
 | `agyPixelBuddy.floatingMode` | `"random" \| "sticky" \| "hidden"` | `"random"` | Floating buddy behavior inside the IDE window |
 | `agyPixelBuddy.language` | `"id" \| "en"` | `"id"` | UI and status bubble language (`id` or `en`) |
 | `agyPixelBuddy.promptReaction` | `boolean` | `true` | Enable/disable the pet/whip reaction animation |

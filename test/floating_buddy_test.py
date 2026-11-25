@@ -31,19 +31,22 @@ class FloatingBuddyLogicTests(unittest.TestCase):
 
     def test_normalize_config_maps_legacy_modes_and_validates_language(self):
         cfg = fb.normalize_config(
-            {"character": "unknown", "moveMode": "hover", "language": "fr", "scale": 99},
+            {"character": "unknown", "trainer": "unknown", "moveMode": "hover", "language": "fr", "scale": 99},
             fallback_char="bot",
             fallback_lang="id",
+            fallback_trainer="girl",
         )
         self.assertEqual(cfg["character"], "bot")
+        self.assertEqual(cfg["trainer"], "girl")
         self.assertEqual(cfg["moveMode"], "sticky")
         self.assertEqual(cfg["language"], "id")
         self.assertEqual(cfg["bubbleMode"], "auto")
         self.assertEqual(cfg["scale"], 3)
 
-        cfg_fly = fb.normalize_config({"moveMode": "fly", "language": "en"})
+        cfg_fly = fb.normalize_config({"moveMode": "fly", "language": "en", "trainer": "sensei"})
         self.assertEqual(cfg_fly["moveMode"], "random")
         self.assertEqual(cfg_fly["language"], "en")
+        self.assertEqual(cfg_fly["trainer"], "sensei")
 
     def test_localize_detail_translates_id_and_preserves_en(self):
         self.assertEqual(fb.localize_detail("Coding extension.js", "id"), "Ngoding extension.js")

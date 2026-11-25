@@ -57,16 +57,19 @@ test('updateFloatingConfig and syncFloatingCharacter preserve preferences while 
   });
 
   assert.equal(syncFloatingCharacter(cfgPath, 'bot', mockFs), true);
-  assert.equal(updateFloatingConfig(cfgPath, { language: 'en', moveMode: 'random', promptReaction: false, reactionTrigger: 'prompt' }, mockFs), true);
+  assert.equal(updateFloatingConfig(cfgPath, { language: 'en', moveMode: 'random', promptReaction: false, reactionTrigger: 'prompt', trainer: 'girl' }, mockFs), true);
 
   const updated = JSON.parse(mockFs.files.get(cfgPath));
   assert.equal(updated.character, 'bot');
+  assert.equal(updated.trainer, 'girl');
   assert.equal(updated.moveMode, 'random');
   assert.equal(updated.language, 'en');
   assert.equal(updated.promptReaction, false);
   assert.equal(updated.reactionTrigger, 'prompt');
   assert.equal(updated.scale, 4);
   assert.equal(syncFloatingCharacter(cfgPath, 'invalid', mockFs), false);
+  assert.equal(updateFloatingConfig(cfgPath, { trainer: 'unknown' }, mockFs), true);
+  assert.equal(JSON.parse(mockFs.files.get(cfgPath)).trainer, 'girl');
 });
 
 test('startFloatingBuddy spawns detached python process with mode and language flags', () => {
@@ -82,6 +85,7 @@ test('startFloatingBuddy spawns detached python process with mode and language f
       pidPath: '/tmp/buddy.pid',
       lockPath: '/tmp/buddy.lock',
       character: 'dev',
+      trainer: 'sensei',
       mode: 'sticky',
       language: 'id',
       idleTimeoutMs: 90000
@@ -107,6 +111,7 @@ test('startFloatingBuddy spawns detached python process with mode and language f
   assert.equal(calls.length, 1);
   assert.equal(calls[0].bin, 'python3');
   assert.ok(calls[0].args.includes('dev'));
+  assert.ok(calls[0].args.includes('sensei'));
   assert.ok(calls[0].args.includes('sticky'));
   assert.ok(calls[0].args.includes('id'));
   assert.equal(calls[0].opts.detached, true);

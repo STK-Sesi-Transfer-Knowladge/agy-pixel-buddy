@@ -99,13 +99,15 @@ test('resolveEffectiveState transitions done -> idle after 5s and active -> idle
   assert.equal(staleCoding.state, 'idle');
 });
 
-test('getWebviewHtml embeds CSP, canvas stage, and safely escapes initial state', () => {
+test('getWebviewHtml embeds CSP, canvas stage, trainer options, and safely escapes initial state', () => {
   const fakeWebview = { cspSource: 'vscode-webview://unit-test' };
-  const html = getWebviewHtml(fakeWebview, { state: 'coding', detail: '<script>x</script>' }, 'bot');
+  const html = getWebviewHtml(fakeWebview, { state: 'coding', detail: '<script>x</script>' }, 'bot', 'random', 'id', true, 'hook', 'sensei');
 
   assert.match(html, /Content-Security-Policy/);
   assert.match(html, /vscode-webview:\/\/unit-test/);
   assert.match(html, /<canvas id="scene"/);
+  assert.match(html, /id="trainerButtons"/);
+  assert.match(html, /let currentTrainer = "sensei";/);
   assert.ok(!html.includes('<script>x</script>'));
 });
 

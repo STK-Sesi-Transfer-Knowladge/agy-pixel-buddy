@@ -11,6 +11,7 @@ const DEFAULT_FLOATING_LOCK_PATH = path.join(os.homedir(), '.gemini', 'antigravi
 const DEFAULT_WORKSPACES_PATH = path.join(os.homedir(), '.gemini', 'antigravity', 'buddy-workspaces.json');
 
 const VALID_CHARS = new Set(['cat', 'bot', 'dev']);
+const VALID_TRAINERS = new Set(['boss', 'girl', 'sensei']);
 const VALID_MODES = new Set(['random', 'sticky', 'hidden']);
 const VALID_LANGS = new Set(['en', 'id']);
 const VALID_TRIGGERS = new Set(['hook', 'prompt']);
@@ -64,6 +65,10 @@ function updateFloatingConfig(configPath = DEFAULT_FLOATING_CONFIG_PATH, patch =
 
     if (typeof patch.character === 'string' && VALID_CHARS.has(patch.character) && next.character !== patch.character) {
       next.character = patch.character;
+      changed = true;
+    }
+    if (typeof patch.trainer === 'string' && VALID_TRAINERS.has(patch.trainer) && next.trainer !== patch.trainer) {
+      next.trainer = patch.trainer;
       changed = true;
     }
     if (typeof patch.moveMode === 'string' && VALID_MODES.has(patch.moveMode) && next.moveMode !== patch.moveMode) {
@@ -120,6 +125,7 @@ function startFloatingBuddy(options, deps = {}) {
     pidPath = DEFAULT_FLOATING_PID_PATH,
     lockPath = DEFAULT_FLOATING_LOCK_PATH,
     character = 'cat',
+    trainer = 'boss',
     mode = 'random',
     language = 'id',
     promptReaction = true,
@@ -135,6 +141,7 @@ function startFloatingBuddy(options, deps = {}) {
   const safeMode = VALID_MODES.has(mode) ? mode : 'random';
   const safeLang = VALID_LANGS.has(language) ? language : 'id';
   const safeChar = VALID_CHARS.has(character) ? character : 'cat';
+  const safeTrainer = VALID_TRAINERS.has(trainer) ? trainer : 'boss';
   const safeReaction = Boolean(promptReaction);
   const safeTrigger = VALID_TRIGGERS.has(reactionTrigger) ? reactionTrigger : 'hook';
 
@@ -142,6 +149,7 @@ function startFloatingBuddy(options, deps = {}) {
     configPath,
     {
       character: safeChar,
+      trainer: safeTrainer,
       moveMode: safeMode,
       language: safeLang,
       promptReaction: safeReaction,
@@ -173,6 +181,8 @@ function startFloatingBuddy(options, deps = {}) {
     lockPath,
     '--character',
     safeChar,
+    '--trainer',
+    safeTrainer,
     '--mode',
     safeMode,
     '--language',
