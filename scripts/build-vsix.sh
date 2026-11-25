@@ -38,7 +38,7 @@ cat > "$STAGE_DIR/[Content_Types].xml" << 'EOF'
   <Default Extension=".gif" ContentType="image/gif" />
   <Default Extension=".md" ContentType="text/markdown" />
   <Default Extension=".vsixmanifest" ContentType="text/xml" />
-  <Default Extension="" ContentType="text/plain" />
+  <Override PartName="/extension/LICENSE" ContentType="text/plain" />
 </Types>
 EOF
 
