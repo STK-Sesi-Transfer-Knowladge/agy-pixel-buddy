@@ -14,6 +14,7 @@ mkdir -p "$EXT_DIR/src" "$EXT_DIR/media" "$EXT_DIR/hooks" "$EXT_DIR/companion"
 
 cp "$ROOT_DIR/package.json" "$EXT_DIR/package.json"
 cp "$ROOT_DIR/README.md" "$EXT_DIR/README.md"
+cp "$ROOT_DIR/LICENSE" "$EXT_DIR/LICENSE"
 cp "$ROOT_DIR/src/extension.js" "$EXT_DIR/src/extension.js"
 cp "$ROOT_DIR/src/stateMapper.js" "$EXT_DIR/src/stateMapper.js"
 cp "$ROOT_DIR/src/webviewHtml.js" "$EXT_DIR/src/webviewHtml.js"
@@ -37,6 +38,7 @@ cat > "$STAGE_DIR/[Content_Types].xml" << 'EOF'
   <Default Extension=".gif" ContentType="image/gif" />
   <Default Extension=".md" ContentType="text/markdown" />
   <Default Extension=".vsixmanifest" ContentType="text/xml" />
+  <Default Extension="" ContentType="text/plain" />
 </Types>
 EOF
 
@@ -65,6 +67,7 @@ cat > "$STAGE_DIR/extension.vsixmanifest" << EOF
   <Assets>
     <Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true" />
     <Asset Type="Microsoft.VisualStudio.Services.Content.Details" Path="extension/README.md" Addressable="true" />
+    <Asset Type="Microsoft.VisualStudio.Services.Content.License" Path="extension/LICENSE" Addressable="true" />
     <Asset Type="Microsoft.VisualStudio.Services.Icons.Default" Path="extension/media/icon.png" Addressable="true" />
   </Assets>
 </PackageManifest>
