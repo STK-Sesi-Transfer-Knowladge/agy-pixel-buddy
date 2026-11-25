@@ -38,11 +38,14 @@ cat > "$STAGE_DIR/[Content_Types].xml" << 'EOF'
 </Types>
 EOF
 
-cat > "$STAGE_DIR/extension.vsixmanifest" << 'EOF'
+PUBLISHER="$(node -p "require('$ROOT_DIR/package.json').publisher")"
+VERSION="$(node -p "require('$ROOT_DIR/package.json').version")"
+
+cat > "$STAGE_DIR/extension.vsixmanifest" << EOF
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Language="en-US" Id="agy-pixel-buddy" Version="0.1.0" Publisher="local" />
+    <Identity Language="en-US" Id="agy-pixel-buddy" Version="$VERSION" Publisher="$PUBLISHER" />
     <DisplayName>Agy Pixel Buddy</DisplayName>
     <Description xml:space="preserve">Animated pixel character buddy that reacts in real time when Antigravity AI is thinking, coding, reading, or running commands.</Description>
     <Categories>Other,Visualization</Categories>
