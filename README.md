@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="media/buddy-icon.svg" alt="Agy Pixel Buddy Icon" width="72" height="72" />
+<img src="https://raw.githubusercontent.com/STK-Sesi-Transfer-Knowladge/agy-pixel-buddy/main/media/icon.png" alt="Agy Pixel Buddy Icon" width="72" height="72" />
 
 # Agy Pixel Buddy
 
 **An animated real-time pixel-art companion for Antigravity IDE that reacts whenever AI is thinking, coding, reading files, running terminal commands, or finishing a task.**
 
-![Version](https://img.shields.io/badge/version-0.1.0-34d399?style=flat-square)
+![Version](https://img.shields.io/badge/version-0.1.1-34d399?style=flat-square)
 ![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.85.0-60a5fa?style=flat-square)
 ![Characters](https://img.shields.io/badge/characters-Cat%20%7C%20Bot%20%7C%20Dev-fbbf24?style=flat-square)
 ![Languages](https://img.shields.io/badge/UI-ID%20%26%20EN-c084fc?style=flat-square)
@@ -30,13 +30,13 @@ Choose from **3 pixel-art characters**, each with distinct state animations and 
   <tbody>
     <tr>
       <td align="center">
-        <img src="media/char-cat.gif" alt="Cat Pixel Buddy Animation" width="260" />
+        <img src="https://raw.githubusercontent.com/STK-Sesi-Transfer-Knowladge/agy-pixel-buddy/main/media/char-cat.gif" alt="Cat Pixel Buddy Animation" width="260" />
       </td>
       <td align="center">
-        <img src="media/char-bot.gif" alt="Bot Pixel Buddy Animation" width="260" />
+        <img src="https://raw.githubusercontent.com/STK-Sesi-Transfer-Knowladge/agy-pixel-buddy/main/media/char-bot.gif" alt="Bot Pixel Buddy Animation" width="260" />
       </td>
       <td align="center">
-        <img src="media/char-dev.gif" alt="Dev Pixel Buddy Animation" width="260" />
+        <img src="https://raw.githubusercontent.com/STK-Sesi-Transfer-Knowladge/agy-pixel-buddy/main/media/char-dev.gif" alt="Dev Pixel Buddy Animation" width="260" />
       </td>
     </tr>
     <tr>
@@ -99,10 +99,10 @@ Choose from **3 pixel-art characters**, each with distinct state animations and 
 Build the `.vsix` package or use the prebuilt package in the repository:
 
 ```bash
-# Option A: Build via bash script (outputs dist/agy-pixel-buddy-0.1.0.vsix)
+# Option A: Build via bash script (outputs dist/agy-pixel-buddy-0.1.1.vsix)
 ./scripts/build-vsix.sh
 
-# Option B: Build via Python script (outputs agy-pixel-buddy-0.1.0.vsix)
+# Option B: Build via Python script (outputs agy-pixel-buddy-0.1.1.vsix)
 python3 scripts/package-vsix.py
 ```
 

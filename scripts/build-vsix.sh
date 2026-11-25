@@ -5,7 +5,9 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="$ROOT_DIR/dist"
 STAGE_DIR="$DIST_DIR/.vsix-stage"
 EXT_DIR="$STAGE_DIR/extension"
-VSIX_PATH="$DIST_DIR/agy-pixel-buddy-0.1.0.vsix"
+PUBLISHER="$(node -p "require('$ROOT_DIR/package.json').publisher")"
+VERSION="$(node -p "require('$ROOT_DIR/package.json').version")"
+VSIX_PATH="$DIST_DIR/agy-pixel-buddy-$VERSION.vsix"
 
 rm -rf "$STAGE_DIR" "$VSIX_PATH"
 mkdir -p "$EXT_DIR/src" "$EXT_DIR/media" "$EXT_DIR/hooks" "$EXT_DIR/companion"
@@ -37,9 +39,6 @@ cat > "$STAGE_DIR/[Content_Types].xml" << 'EOF'
   <Default Extension=".vsixmanifest" ContentType="text/xml" />
 </Types>
 EOF
-
-PUBLISHER="$(node -p "require('$ROOT_DIR/package.json').publisher")"
-VERSION="$(node -p "require('$ROOT_DIR/package.json').version")"
 
 cat > "$STAGE_DIR/extension.vsixmanifest" << EOF
 <?xml version="1.0" encoding="utf-8"?>
