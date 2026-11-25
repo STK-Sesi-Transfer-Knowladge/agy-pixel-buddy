@@ -47,7 +47,9 @@ cat > "$STAGE_DIR/extension.vsixmanifest" << EOF
     <Identity Language="en-US" Id="agy-pixel-buddy" Version="$VERSION" Publisher="$PUBLISHER" />
     <DisplayName>Agy Pixel Buddy</DisplayName>
     <Description xml:space="preserve">Animated pixel character buddy that reacts in real time when Antigravity AI is thinking, coding, reading, or running commands.</Description>
+    <Tags>pixel,animation,antigravity,buddy</Tags>
     <Categories>Other,Visualization</Categories>
+    <GalleryFlags>Public</GalleryFlags>
     <Icon>extension/media/icon.png</Icon>
     <Properties>
       <Property Id="Microsoft.VisualStudio.Code.Engine" Value="^1.85.0" />
