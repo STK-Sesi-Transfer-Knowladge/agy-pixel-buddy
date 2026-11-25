@@ -70,6 +70,6 @@ cat > "$STAGE_DIR/extension.vsixmanifest" << EOF
 </PackageManifest>
 EOF
 
-(cd "$STAGE_DIR" && zip -qr "$VSIX_PATH" .)
+(cd "$STAGE_DIR" && zip -qrX "$VSIX_PATH" .)
 rm -rf "$STAGE_DIR"
 echo "Built $VSIX_PATH"
