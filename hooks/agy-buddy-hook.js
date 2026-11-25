@@ -38,9 +38,20 @@ function readStdinSafe(timeoutMs = 300) {
 function writeJsonAtomic(filePath, obj) {
   const dir = path.dirname(filePath);
   fs.mkdirSync(dir, { recursive: true });
+  const payload = JSON.stringify(obj);
   const tmpFile = path.join(dir, `.${path.basename(filePath)}.${process.pid}.${Date.now()}.tmp`);
-  fs.writeFileSync(tmpFile, JSON.stringify(obj), 'utf8');
-  fs.renameSync(tmpFile, filePath);
+  fs.writeFileSync(tmpFile, payload, 'utf8');
+  try {
+    fs.renameSync(tmpFile, filePath);
+  } catch {
+    // Fallback for Windows EPERM/EBUSY when another reader briefly holds target
+    fs.writeFileSync(filePath, payload, 'utf8');
+    try {
+      fs.unlinkSync(tmpFile);
+    } catch {
+      // ignore cleanup error
+    }
+  }
 }
 
 function readJsonSafe(filePath) {

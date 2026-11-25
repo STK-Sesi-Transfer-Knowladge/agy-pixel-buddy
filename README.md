@@ -6,7 +6,7 @@
 
 **An animated real-time pixel-art companion for Antigravity IDE that reacts whenever AI is thinking, coding, reading files, running terminal commands, or finishing a task.**
 
-![Version](https://img.shields.io/badge/version-0.2.0-34d399?style=flat-square)
+![Version](https://img.shields.io/badge/version-0.2.1-34d399?style=flat-square)
 ![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.85.0-60a5fa?style=flat-square)
 ![Characters](https://img.shields.io/badge/characters-Cat%20%7C%20Bot%20%7C%20Dev-fbbf24?style=flat-square)
 ![Trainers](https://img.shields.io/badge/caretakers-Boss%20%7C%20Girl%20%7C%20Sensei-f43f5e?style=flat-square)
@@ -70,7 +70,7 @@ Choose from **3 pixel-art buddies** (`cat`, `bot`, `dev`) and **3 selectable hum
 - **Real-Time Hook Sync**: Listens to Antigravity AI hook events (`SessionStart`, `PreInvocation`, `PreToolUse`, `PostToolUse`, `PostInvocation`, `Stop`) without ever blocking tool execution.
 - **Dual Display Modes**:
   - **Sidebar Studio & Status Bar**: A 96×72 night studio scene in the Activity Bar complete with a starry window, steaming coffee mug, reactive monitor, state preview buttons, and a live Status Bar indicator (`Agy: Coding…`, `Agy: Thinking…`, etc.).
-  - **Floating Desktop Overlay (Linux X11 + PyQt5)**: A frameless, always-on-top transparent buddy that tracks the focused Antigravity IDE window and can roam freely (*Random Move*) or stay pinned (*Sticky*).
+  - **Floating Desktop Overlay (Windows & Linux X11 + PyQt5)**: A frameless, always-on-top transparent buddy that tracks the focused Antigravity IDE window and can roam freely (*Random Move*) or stay pinned (*Sticky*).
 - **Multi-Workspace Aware**: Tracks per-workspace activity independently via `~/.gemini/antigravity/buddy-workspaces.json`.
 - **Interactive Reactions (Pet / Whip) with 3 Human Caretakers**: Pick between **Boss (`boss`)**, **Girl (`girl`)**, or **Sensei (`sensei`)** to pet `cat` or crack a whip for `bot`/`dev` on every hook change (`hook`), on new prompts only (`prompt`), on click while `idle`, or via the **Test** button.
 - **Bilingual UI (EN & ID)**: Supports both **English** (`en`) and **Bahasa Indonesia** (`id`) across the sidebar, floating bubble, and status bar.
@@ -100,29 +100,33 @@ Choose from **3 pixel-art buddies** (`cat`, `bot`, `dev`) and **3 selectable hum
 Build the `.vsix` package or use the prebuilt package in the repository:
 
 ```bash
-# Option A: Build via bash script (outputs dist/agy-pixel-buddy-0.2.0.vsix)
+# Option A: Build via bash script (outputs dist/agy-pixel-buddy-0.2.1.vsix)
 ./scripts/build-vsix.sh
 
-# Option B: Build via Python script (outputs agy-pixel-buddy-0.2.0.vsix)
+# Option B: Build via Python script (outputs agy-pixel-buddy-0.2.1.vsix)
 python3 scripts/package-vsix.py
 ```
 
 Then install it in Antigravity / VS Code via the Command Palette:
 `Extensions: Install from VSIX...` → select the `.vsix` file.
 
-### 2. Floating Overlay Prerequisites *(Optional, Linux X11)*
+### 2. Floating Overlay Prerequisites *(Optional, Windows & Linux X11)*
 
-The Sidebar Webview and Status Bar work out of the box with zero extra dependencies. To enable the **Floating Desktop Overlay** on Linux X11:
+The Sidebar Webview and Status Bar work out of the box with zero extra dependencies. To enable the **Floating Desktop Overlay**:
 
-- Ensure `python3` and `PyQt5` are installed (`pip install PyQt5` or `sudo apt install python3-pyqt5`).
-- Run inside a Linux X11 session (`DISPLAY` environment variable set).
+- **Windows**: Ensure Python 3 (`python` or `py -3`) and `PyQt5` are installed (`pip install PyQt5`).
+- **Linux X11**: Ensure `python3` and `PyQt5` are installed (`pip install PyQt5` or `sudo apt install python3-pyqt5`), running inside an X11 session (`DISPLAY` set).
 
 ### 3. Antigravity Hook Integration
 
 Configure your Antigravity hooks (`SessionStart`, `PreInvocation`, `PreToolUse`, `PostToolUse`, `PostInvocation`, `Stop`) to invoke `hooks/agy-buddy-hook.js` with `node`:
 
 ```bash
+# Linux / macOS
 node /path/to/agy-pixel-buddy/hooks/agy-buddy-hook.js
+
+# Windows
+node C:\path\to\agy-pixel-buddy\hooks\agy-buddy-hook.js
 ```
 
 The hook reads JSON payloads from `stdin`, atomically updates `~/.gemini/antigravity/buddy-state.json` and `~/.gemini/antigravity/buddy-workspaces.json`, and returns standard non-blocking `stdout` responses.

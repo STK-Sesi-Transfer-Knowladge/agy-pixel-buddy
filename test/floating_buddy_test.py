@@ -142,6 +142,27 @@ class FloatingBuddyLogicTests(unittest.TestCase):
         self.assertEqual(st4["state"], "terminal")
         self.assertEqual(k4, "__global__")
 
+        # Windows backslash workspace paths resolve cleanly
+        win_store = {
+            "workspaces": {
+                r"C:\Users\dev\my-win-app": {
+                    "workspaceName": "",
+                    "state": "coding",
+                    "detail": "Coding main.py",
+                    "updatedAt": 15_000,
+                }
+            }
+        }
+        st5, k5 = fb.select_state_for_ide_title(win_store, "my-win-app - Antigravity IDE")
+        self.assertEqual(st5["state"], "coding")
+        self.assertEqual(k5, r"C:\Users\dev\my-win-app")
+
+    def test_is_win32_ide_window_detects_antigravity_and_ignores_other_apps(self):
+        self.assertTrue(fb.is_win32_ide_window(r"C:\Program Files\Antigravity\Antigravity.exe", "Chrome_WidgetWin_1", "foo"))
+        self.assertTrue(fb.is_win32_ide_window("", "Chrome_WidgetWin_1", "agy-pixel-buddy - Antigravity IDE"))
+        self.assertFalse(fb.is_win32_ide_window(r"C:\Program Files\Google\Chrome\chrome.exe", "Chrome_WidgetWin_1", "Antigravity - Google"))
+        self.assertFalse(fb.is_win32_ide_window("", "Notepad", "Antigravity notes.txt"))
+
 
 if __name__ == "__main__":
     unittest.main()

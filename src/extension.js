@@ -393,10 +393,16 @@ function activate(context) {
     await config.update('floatingMode', nextMode, vscode.ConfigurationTarget.Global);
   });
 
+  function isFloatingOverlaySupported() {
+    if (process.platform === 'win32') return true;
+    if (process.platform === 'linux') return Boolean(process.env.DISPLAY);
+    return false;
+  }
+
   function applyModeToOverlay(mode) {
-    if (process.platform !== 'linux' || !process.env.DISPLAY) {
+    if (!isFloatingOverlaySupported()) {
       if (mode !== 'hidden') {
-        vscode.window.showWarningMessage('Agy Pixel Buddy floating overlay requires Linux X11 (DISPLAY).');
+        vscode.window.showWarningMessage('Agy Pixel Buddy floating overlay requires Windows or Linux X11 (DISPLAY).');
       }
       return;
     }
@@ -456,7 +462,7 @@ function activate(context) {
   refreshFromDisk(true);
 
   const initialMode = vscode.workspace.getConfiguration('agyPixelBuddy').get('floatingMode', 'random');
-  if (process.platform === 'linux' && process.env.DISPLAY) {
+  if (isFloatingOverlaySupported()) {
     if (initialMode !== 'hidden') {
       applyModeToOverlay(initialMode);
     } else if (isFloatingRunning(DEFAULT_FLOATING_PID_PATH)) {

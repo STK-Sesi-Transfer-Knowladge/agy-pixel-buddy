@@ -6,6 +6,7 @@ const {
   isProcessAlive,
   readFloatingPid,
   isFloatingRunning,
+  resolvePythonCommand,
   updateFloatingConfig,
   syncFloatingCharacter,
   startFloatingBuddy,
@@ -177,4 +178,52 @@ test('toggleFloatingBuddy switches between stopped and started cleanly', () => {
   assert.equal(res.action, 'stopped');
   assert.equal(res.running, false);
   assert.equal(mockFs.existsSync(pidPath), false);
+});
+
+test('resolvePythonCommand and startFloatingBuddy support Windows python/py launchers and windowsHide', () => {
+  const probed = [];
+  const winCmd = resolvePythonCommand('', {
+    platform: 'win32',
+    execFileSync(bin, args) {
+      probed.push({ bin, args });
+      if (bin === 'py') throw new Error('missing py');
+    }
+  });
+  assert.deepEqual(winCmd, { bin: 'python', prefixArgs: [] });
+  assert.equal(probed[0].bin, 'py');
+
+  const mockFs = createMockFs({ 'C:\\ext\\companion\\floating_buddy.py': '#!/usr/bin/env python3' });
+  const calls = [];
+  const res = startFloatingBuddy(
+    {
+      scriptPath: 'C:\\ext\\companion\\floating_buddy.py',
+      statePath: 'C:\\tmp\\buddy-state.json',
+      configPath: 'C:\\tmp\\buddy-cfg.json',
+      pidPath: 'C:\\tmp\\buddy.pid',
+      lockPath: 'C:\\tmp\\buddy.lock',
+      character: 'cat',
+      trainer: 'girl',
+      mode: 'random'
+    },
+    {
+      platform: 'win32',
+      fs: mockFs,
+      execFileSync(bin, args) {
+        if (bin === 'py' && args.includes('import PyQt5')) {
+          return;
+        }
+        throw new Error('not found');
+      },
+      spawn(bin, args, opts) {
+        calls.push({ bin, args, opts });
+        return { pid: 2468, unref() {} };
+      }
+    }
+  );
+
+  assert.equal(res.started, true);
+  assert.equal(calls[0].bin, 'py');
+  assert.equal(calls[0].args[0], '-3');
+  assert.equal(calls[0].opts.detached, true);
+  assert.equal(calls[0].opts.windowsHide, true);
 });

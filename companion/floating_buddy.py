@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import argparse
 import ctypes
-import fcntl
 import json
 import math
 import os
@@ -18,6 +17,16 @@ import sys
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
+
+try:
+    import fcntl
+except ImportError:
+    fcntl = None  # type: ignore[assignment]
+
+try:
+    import msvcrt
+except ImportError:
+    msvcrt = None  # type: ignore[assignment]
 
 DEFAULT_STATE_PATH = Path.home() / ".gemini" / "antigravity" / "buddy-state.json"
 DEFAULT_WORKSPACES_PATH = Path.home() / ".gemini" / "antigravity" / "buddy-workspaces.json"
@@ -192,9 +201,17 @@ def load_json_safe(file_path: Path) -> Optional[Dict[str, Any]]:
 def save_json_atomic(file_path: Path, data: Dict[str, Any]) -> None:
     """Atomically write JSON data to disk."""
     file_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(data, indent=2)
     tmp_path = file_path.with_name(f".{file_path.name}.{os.getpid()}.tmp")
-    tmp_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
-    os.replace(tmp_path, file_path)
+    tmp_path.write_text(payload, encoding="utf-8")
+    try:
+        os.replace(tmp_path, file_path)
+    except PermissionError:
+        file_path.write_text(payload, encoding="utf-8")
+        try:
+            tmp_path.unlink(missing_ok=True)
+        except Exception:
+            pass
 
 
 def normalize_move_mode(raw_mode: Any, fallback: str = "random") -> str:
@@ -326,7 +343,7 @@ def select_state_for_ide_title(
     for ws_key, entry in ws_map.items():
         if ws_key == "__global__" or not isinstance(entry, dict):
             continue
-        ws_name = entry.get("workspaceName") or Path(ws_key).name
+        ws_name = entry.get("workspaceName") or ws_key.replace("\\", "/").rstrip("/").rsplit("/", 1)[-1]
         if ws_name and ws_name in candidates:
             ts = int(entry.get("updatedAt") or 0)
             if ts > best_ts:
@@ -495,6 +512,136 @@ class X11IdeTracker:
             self.dpy = None
 
 
+def is_win32_ide_window(exe_path: str, class_name: str, title: str) -> bool:
+    """Return True when a foreground Win32 window belongs to Antigravity IDE."""
+    exe_low = (exe_path or "").lower()
+    if exe_low:
+        return "antigravity" in exe_low
+    cls_low = (class_name or "").lower()
+    title_low = (title or "").lower()
+    return cls_low == "chrome_widgetwin_1" and "antigravity" in title_low
+
+
+class Win32IdeTracker:
+    """Tracks the active Win32 window via user32/kernel32 to detect Antigravity IDE focus & bounds."""
+
+    def __init__(self, own_pid: int) -> None:
+        self.own_pid = own_pid
+        self.user32 = None
+        self.kernel32 = None
+        self.wintypes = None
+        self.last_ide_bounds: Optional[Tuple[int, int, int, int]] = None
+        self.last_ide_title: str = ""
+        self._init_win32()
+
+    def _init_win32(self) -> None:
+        if sys.platform != "win32":
+            return
+        try:
+            from ctypes import wintypes
+
+            user32 = ctypes.windll.user32
+            kernel32 = ctypes.windll.kernel32
+
+            user32.GetForegroundWindow.restype = wintypes.HWND
+            user32.IsIconic.argtypes = [wintypes.HWND]
+            user32.IsIconic.restype = wintypes.BOOL
+            user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+            user32.GetWindowThreadProcessId.restype = wintypes.DWORD
+            user32.GetWindowTextLengthW.argtypes = [wintypes.HWND]
+            user32.GetWindowTextLengthW.restype = ctypes.c_int
+            user32.GetWindowTextW.argtypes = [wintypes.HWND, ctypes.c_wchar_p, ctypes.c_int]
+            user32.GetWindowTextW.restype = ctypes.c_int
+            user32.GetClassNameW.argtypes = [wintypes.HWND, ctypes.c_wchar_p, ctypes.c_int]
+            user32.GetClassNameW.restype = ctypes.c_int
+            user32.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
+            user32.GetWindowRect.restype = wintypes.BOOL
+
+            kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+            kernel32.OpenProcess.restype = wintypes.HANDLE
+            kernel32.QueryFullProcessImageNameW.argtypes = [
+                wintypes.HANDLE, wintypes.DWORD, ctypes.c_wchar_p, ctypes.POINTER(wintypes.DWORD)
+            ]
+            kernel32.QueryFullProcessImageNameW.restype = wintypes.BOOL
+            kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+            kernel32.CloseHandle.restype = wintypes.BOOL
+
+            self.user32 = user32
+            self.kernel32 = kernel32
+            self.wintypes = wintypes
+        except Exception:
+            self.user32 = None
+            self.kernel32 = None
+
+    def _get_exe_path(self, pid: int) -> str:
+        if not self.kernel32 or not self.wintypes or not pid:
+            return ""
+        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+        handle = self.kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+        if not handle:
+            return ""
+        try:
+            size = self.wintypes.DWORD(512)
+            buf = ctypes.create_unicode_buffer(size.value)
+            if self.kernel32.QueryFullProcessImageNameW(handle, 0, buf, ctypes.byref(size)):
+                return buf.value
+            return ""
+        finally:
+            self.kernel32.CloseHandle(handle)
+
+    def poll(self) -> Tuple[bool, Optional[Tuple[int, int, int, int]], str]:
+        """Return (is_ide_focused, ide_bounds_or_last, ide_window_title) safely."""
+        if not self.user32 or not self.wintypes:
+            return True, self.last_ide_bounds, self.last_ide_title
+        try:
+            hwnd = self.user32.GetForegroundWindow()
+            if not hwnd or self.user32.IsIconic(hwnd):
+                return False, self.last_ide_bounds, self.last_ide_title
+
+            pid = self.wintypes.DWORD()
+            self.user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+            if pid.value == self.own_pid:
+                return True, self.last_ide_bounds, self.last_ide_title
+
+            title_len = self.user32.GetWindowTextLengthW(hwnd)
+            title = ""
+            if title_len > 0:
+                title_buf = ctypes.create_unicode_buffer(title_len + 1)
+                self.user32.GetWindowTextW(hwnd, title_buf, title_len + 1)
+                title = title_buf.value.strip()
+
+            cls_buf = ctypes.create_unicode_buffer(128)
+            self.user32.GetClassNameW(hwnd, cls_buf, 128)
+            exe_path = self._get_exe_path(pid.value)
+
+            if not is_win32_ide_window(exe_path, cls_buf.value, title):
+                return False, self.last_ide_bounds, self.last_ide_title
+
+            if title:
+                self.last_ide_title = title
+
+            rect = self.wintypes.RECT()
+            if self.user32.GetWindowRect(hwnd, ctypes.byref(rect)):
+                w = rect.right - rect.left
+                h = rect.bottom - rect.top
+                if w > 120 and h > 120:
+                    self.last_ide_bounds = (rect.left, rect.top, w, h)
+            return True, self.last_ide_bounds, self.last_ide_title
+        except Exception:
+            return True, self.last_ide_bounds, self.last_ide_title
+
+    def close(self) -> None:
+        self.user32 = None
+        self.kernel32 = None
+
+
+def create_ide_tracker(own_pid: int) -> Any:
+    """Create the platform-appropriate IDE window focus/bounds tracker."""
+    if sys.platform == "win32":
+        return Win32IdeTracker(own_pid)
+    return X11IdeTracker(own_pid)
+
+
 def should_trigger_prompt_reaction(
     prev_raw: Optional[Dict[str, Any]],
     new_raw: Optional[Dict[str, Any]],
@@ -625,7 +772,7 @@ def run_gui(args: argparse.Namespace) -> int:
             self.menu_open: bool = False
             self.drag_offset = QPoint(0, 0)
             self.press_global_pos = QPoint(0, 0)
-            self.ide_tracker = X11IdeTracker(os.getpid())
+            self.ide_tracker = create_ide_tracker(os.getpid())
             self.ide_focused: bool = True
             self.ide_bounds: Optional[Tuple[int, int, int, int]] = None
 
@@ -1668,7 +1815,7 @@ def run_gui(args: argparse.Namespace) -> int:
 
 
 def acquire_single_instance(lock_path: Path, pid_path: Path, replace: bool = False) -> Optional[Any]:
-    """Acquire non-blocking flock so only one floating buddy exists across IDE windows."""
+    """Acquire non-blocking file lock so only one floating buddy exists across IDE windows."""
     lock_path.parent.mkdir(parents=True, exist_ok=True)
     if replace and pid_path.exists():
         try:
@@ -1679,9 +1826,17 @@ def acquire_single_instance(lock_path: Path, pid_path: Path, replace: bool = Fal
         except Exception:
             pass
 
-    handle = open(lock_path, "w", encoding="utf-8")
+    handle = open(lock_path, "a+", encoding="utf-8")
     try:
-        fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if fcntl is not None:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        elif msvcrt is not None:
+            handle.seek(0, os.SEEK_END)
+            if handle.tell() == 0:
+                handle.write("1")
+                handle.flush()
+            handle.seek(0)
+            msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
     except OSError:
         handle.close()
         return None
@@ -1724,7 +1879,11 @@ def main() -> int:
         except Exception:
             pass
         try:
-            fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
+            if fcntl is not None:
+                fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
+            elif msvcrt is not None:
+                lock_handle.seek(0)
+                msvcrt.locking(lock_handle.fileno(), msvcrt.LK_UNLCK, 1)
             lock_handle.close()
         except Exception:
             pass

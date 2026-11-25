@@ -112,6 +112,39 @@ function syncFloatingCharacter(configPath = DEFAULT_FLOATING_CONFIG_PATH, charac
   return updateFloatingConfig(configPath, { character }, fsMod);
 }
 
+function resolvePythonCommand(preferredBin, deps = {}) {
+  if (typeof preferredBin === 'string' && preferredBin.trim()) {
+    return { bin: preferredBin.trim(), prefixArgs: [] };
+  }
+  const platform = deps.platform || process.platform;
+  if (platform !== 'win32') {
+    return { bin: 'python3', prefixArgs: [] };
+  }
+
+  const execFileSyncFn = deps.execFileSync || childProcess.execFileSync;
+  const candidates = [
+    { bin: 'py', prefixArgs: ['-3'] },
+    { bin: 'python', prefixArgs: [] },
+    { bin: 'python3', prefixArgs: [] }
+  ];
+
+  for (const probeArgs of [['-c', 'import PyQt5'], ['-c', 'import sys']]) {
+    for (const candidate of candidates) {
+      try {
+        execFileSyncFn(candidate.bin, [...candidate.prefixArgs, ...probeArgs], {
+          timeout: 2500,
+          windowsHide: true,
+          stdio: 'ignore'
+        });
+        return candidate;
+      } catch {
+        // Try next Python launcher candidate
+      }
+    }
+  }
+  return { bin: 'python', prefixArgs: [] };
+}
+
 function startFloatingBuddy(options, deps = {}) {
   const fsMod = deps.fs || fs;
   const spawnFn = deps.spawn || childProcess.spawn;
@@ -131,7 +164,7 @@ function startFloatingBuddy(options, deps = {}) {
     promptReaction = true,
     reactionTrigger = 'hook',
     idleTimeoutMs = 120000,
-    pythonBin = 'python3'
+    pythonBin = ''
   } = options || {};
 
   if (mode === 'hidden') {
@@ -194,9 +227,11 @@ function startFloatingBuddy(options, deps = {}) {
     String(idleTimeoutMs)
   ];
 
-  const child = spawnFn(pythonBin, args, {
+  const { bin: resolvedBin, prefixArgs } = resolvePythonCommand(pythonBin, deps);
+  const child = spawnFn(resolvedBin, [...prefixArgs, ...args], {
     detached: true,
-    stdio: 'ignore'
+    stdio: 'ignore',
+    windowsHide: true
   });
   if (child && typeof child.unref === 'function') {
     child.unref();
@@ -291,6 +326,7 @@ module.exports = {
   isProcessAlive,
   readFloatingPid,
   isFloatingRunning,
+  resolvePythonCommand,
   readFloatingConfig,
   updateFloatingConfig,
   syncFloatingCharacter,
