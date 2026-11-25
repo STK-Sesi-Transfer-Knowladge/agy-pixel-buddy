@@ -1,0 +1,21 @@
+# Dependencies & caches
+node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Build artifacts & VSIX packages
+dist/
+*.vsix
+.vsix-stage/
+
+# Environment & local state
+.env
+.env.*
+*.log
+
+# OS & editor files
+.DS_Store
+Thumbs.db
+.vscode-test/

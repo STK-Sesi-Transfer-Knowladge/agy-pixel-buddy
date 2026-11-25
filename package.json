@@ -1,0 +1,114 @@
+{
+  "name": "agy-pixel-buddy",
+  "displayName": "Agy Pixel Buddy",
+  "description": "Animated pixel character buddy that reacts in real time when Antigravity AI is thinking, coding, reading, or running commands.",
+  "version": "0.1.0",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./src/extension.js",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "agy-pixel-buddy",
+          "title": "Agy Pixel Buddy",
+          "icon": "media/buddy-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "agy-pixel-buddy": [
+        {
+          "type": "webview",
+          "id": "agyPixelBuddy.buddyView",
+          "name": "Pixel Buddy"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "agyPixelBuddy.focus",
+        "title": "Agy Pixel Buddy: Focus Buddy View"
+      },
+      {
+        "command": "agyPixelBuddy.cycleCharacter",
+        "title": "Agy Pixel Buddy: Switch Character"
+      },
+      {
+        "command": "agyPixelBuddy.toggleFloating",
+        "title": "Agy Pixel Buddy: Toggle Floating Buddy"
+      }
+    ],
+    "configuration": {
+      "title": "Agy Pixel Buddy",
+      "properties": {
+        "agyPixelBuddy.character": {
+          "type": "string",
+          "enum": [
+            "cat",
+            "bot",
+            "dev"
+          ],
+          "default": "cat",
+          "description": "Active pixel character sprite."
+        },
+        "agyPixelBuddy.idleTimeoutSeconds": {
+          "type": "number",
+          "default": 120,
+          "minimum": 10,
+          "description": "Seconds before an active state falls back to idle if no new hook event arrives."
+        },
+        "agyPixelBuddy.statusFile": {
+          "type": "string",
+          "default": "",
+          "description": "Optional custom path to buddy-state.json. Leave empty to use ~/.gemini/antigravity/buddy-state.json."
+        },
+        "agyPixelBuddy.floatingMode": {
+          "type": "string",
+          "enum": [
+            "random",
+            "sticky",
+            "hidden"
+          ],
+          "default": "random",
+          "description": "Floating buddy behavior inside the Antigravity IDE window: random (roam inside IDE), sticky (stay where placed in IDE), or hidden (disabled)."
+        },
+        "agyPixelBuddy.language": {
+          "type": "string",
+          "enum": [
+            "id",
+            "en"
+          ],
+          "default": "id",
+          "description": "UI and status bubble language (id = Bahasa Indonesia, en = English)."
+        },
+        "agyPixelBuddy.promptReaction": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable reaction animation (petting for cat, comedic whip crack for bot and dev)."
+        },
+        "agyPixelBuddy.reactionTrigger": {
+          "type": "string",
+          "enum": [
+            "hook",
+            "prompt"
+          ],
+          "default": "hook",
+          "description": "When to trigger reaction animation: hook (every hook change) or prompt (new prompt only)."
+        }
+      }
+    }
+  }
+}
