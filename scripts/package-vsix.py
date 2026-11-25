@@ -20,6 +20,8 @@ CONTENT_TYPES_XML = """<?xml version="1.0" encoding="utf-8"?>
   <Default Extension=".js" ContentType="application/javascript" />
   <Default Extension=".py" ContentType="text/x-python" />
   <Default Extension=".svg" ContentType="image/svg+xml" />
+  <Default Extension=".png" ContentType="image/png" />
+  <Default Extension=".gif" ContentType="image/gif" />
   <Default Extension=".md" ContentType="text/markdown" />
   <Default Extension=".vsixmanifest" ContentType="text/xml" />
 </Types>
@@ -34,6 +36,7 @@ VSIX_MANIFEST = f"""<?xml version="1.0" encoding="utf-8"?>
     <Tags>pixel,animation,antigravity,buddy</Tags>
     <Categories>Other,Visualization</Categories>
     <GalleryFlags>Public</GalleryFlags>
+    <Icon>extension/media/icon.png</Icon>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Code" Version="[1.85.0,)" />
@@ -41,13 +44,20 @@ VSIX_MANIFEST = f"""<?xml version="1.0" encoding="utf-8"?>
   <Dependencies />
   <Assets>
     <Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true" />
+    <Asset Type="Microsoft.VisualStudio.Services.Content.Details" Path="extension/README.md" Addressable="true" />
+    <Asset Type="Microsoft.VisualStudio.Services.Icons.Default" Path="extension/media/icon.png" Addressable="true" />
   </Assets>
 </PackageManifest>
 """
 
 INCLUDE_FILES = [
     "package.json",
+    "README.md",
+    "media/icon.png",
     "media/buddy-icon.svg",
+    "media/char-cat.gif",
+    "media/char-bot.gif",
+    "media/char-dev.gif",
     "src/extension.js",
     "src/stateMapper.js",
     "src/webviewHtml.js",

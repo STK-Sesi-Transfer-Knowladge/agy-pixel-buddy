@@ -3,7 +3,12 @@
   "displayName": "Agy Pixel Buddy",
   "description": "Animated pixel character buddy that reacts in real time when Antigravity AI is thinking, coding, reading, or running commands.",
   "version": "0.1.0",
-  "publisher": "local",
+  "publisher": "AdhaBakhtiar",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/STK-Sesi-Transfer-Knowladge/agy-pixel-buddy.git"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
