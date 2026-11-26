@@ -48,6 +48,19 @@ class FloatingBuddyLogicTests(unittest.TestCase):
         self.assertEqual(cfg_fly["language"], "en")
         self.assertEqual(cfg_fly["trainer"], "sensei")
 
+        cfg_naruto = fb.normalize_config({"character": "kyubi", "trainer": "naruto"})
+        self.assertEqual(cfg_naruto["character"], "kyubi")
+        self.assertEqual(cfg_naruto["trainer"], "naruto")
+
+        self.assertEqual(fb.normalize_config({"character": "jokowi"})["character"], "jokowi")
+        self.assertEqual(fb.normalize_config({"character": "prabowo"})["character"], "prabowo")
+        self.assertEqual(fb.normalize_config({"character": "trump"})["character"], "trump")
+        self.assertEqual(fb.normalize_config({"character": "putin"})["character"], "putin")
+        self.assertEqual(fb.normalize_config({"character": "kim"})["character"], "kim")
+        self.assertEqual(fb.normalize_config({"character": "fufufafa"})["character"], "fufufafa")
+        for tr in ("jokowi", "prabowo", "trump", "putin", "kim", "fufufafa"):
+            self.assertEqual(fb.normalize_config({"trainer": tr})["trainer"], tr)
+
     def test_localize_detail_translates_id_and_preserves_en(self):
         self.assertEqual(fb.localize_detail("Coding extension.js", "id"), "Ngoding extension.js")
         self.assertEqual(fb.localize_detail("Thinking...", "id"), "Lagi mikir...")

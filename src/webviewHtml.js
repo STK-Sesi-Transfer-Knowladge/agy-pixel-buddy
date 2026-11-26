@@ -17,13 +17,15 @@ function getWebviewHtml(
   initialLanguage = 'id',
   initialPromptReaction = true,
   initialReactionTrigger = 'hook',
-  initialTrainer = 'boss'
+  initialTrainer = 'boss',
+  initialFloatingScale = 3
 ) {
   const nonce = getNonce();
   const safeStateJson = JSON.stringify(initialState || { state: 'idle', detail: 'Standing by' }).replace(/</g, '\\u003c');
   const safeChar = JSON.stringify(initialCharacter || 'cat').replace(/</g, '\\u003c');
-  const safeTrainer = JSON.stringify(['boss', 'girl', 'sensei'].includes(initialTrainer) ? initialTrainer : 'boss');
+  const safeTrainer = JSON.stringify(['boss', 'girl', 'sensei', 'naruto', 'jokowi', 'prabowo', 'trump', 'putin', 'kim', 'fufufafa'].includes(initialTrainer) ? initialTrainer : 'boss');
   const safeFloatingMode = JSON.stringify(initialFloatingMode || 'random').replace(/</g, '\\u003c');
+  const safeFloatingScale = JSON.stringify([2, 3, 4].includes(Number(initialFloatingScale)) ? Number(initialFloatingScale) : 3);
   const safeLang = JSON.stringify(initialLanguage === 'en' ? 'en' : 'id');
   const safePromptReaction = JSON.stringify(Boolean(initialPromptReaction));
   const safeReactionTrigger = JSON.stringify(initialReactionTrigger === 'prompt' ? 'prompt' : 'hook');
@@ -175,6 +177,13 @@ function getWebviewHtml(
       <button type="button" data-char="cat">Cat</button>
       <button type="button" data-char="bot">Bot</button>
       <button type="button" data-char="dev">Dev</button>
+      <button type="button" data-char="kyubi">Kyubi</button>
+      <button type="button" data-char="jokowi">Bapak Fufufafa</button>
+      <button type="button" data-char="prabowo">El Gemoy</button>
+      <button type="button" data-char="trump">Mr. Tariff</button>
+      <button type="button" data-char="putin">Bos Meja Panjang</button>
+      <button type="button" data-char="kim">Rocket Man</button>
+      <button type="button" data-char="fufufafa">Fufufafa</button>
     </div>
   </div>
 
@@ -184,6 +193,13 @@ function getWebviewHtml(
       <button type="button" data-trainer="boss">Bos</button>
       <button type="button" data-trainer="girl">Cewek</button>
       <button type="button" data-trainer="sensei">Sensei</button>
+      <button type="button" data-trainer="naruto">Naruto</button>
+      <button type="button" data-trainer="jokowi">Bapak Fufufafa</button>
+      <button type="button" data-trainer="prabowo">El Gemoy</button>
+      <button type="button" data-trainer="trump">Mr. Tariff</button>
+      <button type="button" data-trainer="putin">Bos Meja Panjang</button>
+      <button type="button" data-trainer="kim">Rocket Man</button>
+      <button type="button" data-trainer="fufufafa">Fufufafa</button>
     </div>
   </div>
 
@@ -193,6 +209,15 @@ function getWebviewHtml(
       <button type="button" data-float-mode="random">Random Move</button>
       <button type="button" data-float-mode="sticky">Sticky</button>
       <button type="button" data-float-mode="hidden">Hide (Off)</button>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label" id="lblFloatingScale">Ukuran Floating</div>
+    <div class="pill-group" id="floatingScaleButtons">
+      <button type="button" data-float-scale="2">2x</button>
+      <button type="button" data-float-scale="3">3x</button>
+      <button type="button" data-float-scale="4">4x</button>
     </div>
   </div>
 
@@ -239,11 +264,13 @@ function getWebviewHtml(
       const charButtons = document.getElementById('charButtons');
       const trainerButtons = document.getElementById('trainerButtons');
       const floatingModeButtons = document.getElementById('floatingModeButtons');
+      const floatingScaleButtons = document.getElementById('floatingScaleButtons');
       const langButtons = document.getElementById('langButtons');
       const previewButtons = document.getElementById('previewButtons');
       const lblCharacter = document.getElementById('lblCharacter');
       const lblTrainer = document.getElementById('lblTrainer');
       const lblFloating = document.getElementById('lblFloating');
+      const lblFloatingScale = document.getElementById('lblFloatingScale');
       const lblLanguage = document.getElementById('lblLanguage');
       const lblReaction = document.getElementById('lblReaction');
       const lblPreview = document.getElementById('lblPreview');
@@ -255,6 +282,7 @@ function getWebviewHtml(
       let currentChar = ${safeChar};
       let currentTrainer = ${safeTrainer};
       let floatingMode = ${safeFloatingMode};
+      let floatingScale = ${safeFloatingScale};
       let currentLang = ${safeLang};
       let promptReactionEnabled = ${safePromptReaction};
       let reactionTrigger = ${safeReactionTrigger};
@@ -278,13 +306,14 @@ function getWebviewHtml(
           lblCharacter: 'Character',
           lblTrainer: 'Caretaker / Whipper',
           lblFloating: 'Floating Mode',
+          lblFloatingScale: 'Floating Size',
           lblLanguage: 'Language',
           lblReaction: 'Reaction (Pet / Whip)',
           lblPreview: 'Preview / Mode',
           reactions: { hook: 'Every Hook', prompt: 'New Prompt', off: 'Off' },
           testReaction: 'Test',
-          chars: { cat: 'Cat', bot: 'Bot', dev: 'Dev' },
-          trainers: { boss: 'Boss', girl: 'Girl', sensei: 'Sensei' },
+          chars: { cat: 'Cat', bot: 'Bot', dev: 'Dev', kyubi: 'Kyubi', jokowi: 'Father of Fufufafa', prabowo: 'El Gemoy', trump: 'Mr. Tariff', putin: 'Mr. Long Table', kim: 'Rocket Man', fufufafa: 'Fufufafa' },
+          trainers: { boss: 'Boss', girl: 'Girl', sensei: 'Sensei', naruto: 'Naruto', jokowi: 'Father of Fufufafa', prabowo: 'El Gemoy', trump: 'Mr. Tariff', putin: 'Mr. Long Table', kim: 'Rocket Man', fufufafa: 'Fufufafa' },
           modes: { random: 'Random Move', sticky: 'Sticky', hidden: 'Hide (Off)' },
           previews: { live: 'Live Hook', thinking: 'Think', coding: 'Code', reading: 'Read', terminal: 'Terminal', done: 'Done' },
           previewDetails: {
@@ -299,13 +328,14 @@ function getWebviewHtml(
           lblCharacter: 'Karakter',
           lblTrainer: 'Pengasuh / Pencambuk',
           lblFloating: 'Mode Floating',
+          lblFloatingScale: 'Ukuran Floating',
           lblLanguage: 'Bahasa',
           lblReaction: 'Reaksi (Elus / Cambuk)',
           lblPreview: 'Preview / Mode',
           reactions: { hook: 'Tiap Hook', prompt: 'Prompt Baru', off: 'Nonaktif' },
           testReaction: 'Tes Reaksi',
-          chars: { cat: 'Kucing', bot: 'Bot', dev: 'Dev' },
-          trainers: { boss: 'Bos', girl: 'Cewek', sensei: 'Sensei' },
+          chars: { cat: 'Kucing', bot: 'Bot', dev: 'Dev', kyubi: 'Kyubi', jokowi: 'Bapak Fufufafa', prabowo: 'El Gemoy', trump: 'Mr. Tariff', putin: 'Bos Meja Panjang', kim: 'Rocket Man', fufufafa: 'Fufufafa' },
+          trainers: { boss: 'Bos', girl: 'Cewek', sensei: 'Sensei', naruto: 'Naruto', jokowi: 'Bapak Fufufafa', prabowo: 'El Gemoy', trump: 'Mr. Tariff', putin: 'Bos Meja Panjang', kim: 'Rocket Man', fufufafa: 'Fufufafa' },
           modes: { random: 'Gerak Acak', sticky: 'Sticky (Diam)', hidden: 'Sembunyikan' },
           previews: { live: 'Live Hook', thinking: 'Mikir', coding: 'Ngoding', reading: 'Baca', terminal: 'Terminal', done: 'Selesai' },
           previewDetails: {
@@ -376,6 +406,7 @@ function getWebviewHtml(
         lblCharacter.textContent = copy.lblCharacter;
         if (lblTrainer) lblTrainer.textContent = copy.lblTrainer;
         lblFloating.textContent = copy.lblFloating;
+        if (lblFloatingScale) lblFloatingScale.textContent = copy.lblFloatingScale;
         lblLanguage.textContent = copy.lblLanguage;
         lblReaction.textContent = copy.lblReaction;
         lblPreview.textContent = copy.lblPreview;
@@ -405,6 +436,11 @@ function getWebviewHtml(
           btn.textContent = copy.modes[btn.dataset.floatMode] || btn.textContent;
           btn.classList.toggle('active', btn.dataset.floatMode === floatingMode);
         });
+        if (floatingScaleButtons) {
+          floatingScaleButtons.querySelectorAll('button').forEach((btn) => {
+            btn.classList.toggle('active', Number(btn.dataset.floatScale) === Number(floatingScale));
+          });
+        }
         langButtons.querySelectorAll('button').forEach((btn) => {
           btn.classList.toggle('active', btn.dataset.lang === currentLang);
         });
@@ -420,25 +456,176 @@ function getWebviewHtml(
       }
 
       function drawBackdrop(state, accent) {
-        // Night studio room gradient bands
-        px(0, 0, 96, 72, '#0d1018');
-        px(0, 0, 96, 46, '#131826');
-        // Pixel window on left wall
-        px(6, 7, 20, 18, '#1f293d');
-        px(8, 9, 7, 6, '#18243a');
-        px(17, 9, 7, 6, '#18243a');
-        px(8, 17, 7, 6, '#18243a');
-        px(17, 17, 7, 6, '#18243a');
-        // Twinkling pixel stars outside window
-        if (tick % 24 < 18) px(10, 11, 1, 1, '#fef08a');
-        if ((tick + 10) % 30 < 20) px(21, 12, 1, 1, '#93c5fd');
-        px(12, 19, 1, 1, '#e2e8f0');
+        if (currentChar === 'prabowo') {
+          // Perkebunan sawit background for El Gemoy
+          px(0, 0, 96, 34, '#0284c7');
+          px(0, 14, 96, 20, '#38bdf8');
+          px(0, 24, 96, 12, '#7dd3fc');
+          // Tropical sun & clouds
+          px(10, 6, 7, 7, '#fde047');
+          px(11, 7, 5, 5, '#fef08a');
+          px(64, 8, 12, 3, '#e0f2fe');
+          px(66, 6, 7, 2, '#f8fafc');
+          // Green plantation hills
+          px(0, 32, 96, 17, '#166534');
+          px(0, 36, 96, 13, '#15803d');
+          // Rows of oil palm trees (pohon sawit)
+          const sway = Math.floor(tick / 10) % 2;
+          for (const [tx, ty, h] of [[8, 22, 16], [26, 26, 14], [46, 25, 14], [70, 21, 17], [86, 25, 14]]) {
+            px(tx, ty, 2, h, '#78350f');
+            px(tx - 1, ty, 1, 2, '#ea580c');
+            px(tx - 4 + sway, ty - 2, 5, 1, '#16a34a');
+            px(tx - 5 + sway, ty - 1, 2, 1, '#22c55e');
+            px(tx + 1 + sway, ty - 2, 5, 1, '#16a34a');
+            px(tx + 5 + sway, ty - 1, 2, 1, '#22c55e');
+            px(tx - 2, ty - 4, 3, 2, '#22c55e');
+            px(tx + 1, ty - 4, 3, 2, '#15803d');
+            px(tx - 1, ty - 5, 4, 2, '#4ade80');
+          }
+        } else if (currentChar === 'jokowi') {
+          // Gedung IKN (Istana Garuda) yang lebih mirip aslinya
+          px(0, 0, 96, 20, '#0f172a');
+          px(0, 16, 96, 14, '#1e1b4b');
+          px(0, 26, 96, 12, '#92400e');
+          px(0, 35, 96, 14, '#14532d');
+          if (tick % 24 < 18) px(8, 6, 1, 1, '#fef08a');
+          if ((tick + 8) % 28 < 20) px(86, 7, 1, 1, '#93c5fd');
+          // Wide sweeping dark-bronze & oxidized-teal Garuda wings across skyline
+          for (let i = 0; i < 6; i += 1) {
+            const w = 8 + i * 2;
+            px(8 + i * 5, 11 + i * 3, w, 3, i % 2 === 0 ? '#1e293b' : '#334155');
+            px(9 + i * 5, 12 + i * 3, w - 3, 1, '#0f766e');
+            px(80 - i * 5, 11 + i * 3, w, 3, i % 2 === 0 ? '#1e293b' : '#334155');
+            px(81 - i * 5, 12 + i * 3, w - 3, 1, '#0f766e');
+          }
+          // Garuda torso & proud crested head facing slightly left
+          px(42, 13, 12, 14, '#1e293b');
+          px(44, 15, 8, 10, '#334155');
+          px(45, 7, 6, 6, '#334155');
+          px(46, 5, 4, 2, '#475569'); // crown crest
+          px(43, 9, 2, 2, '#64748b'); // curved beak
+          // Monumental white-granite terraced palace podium & warm floodlights
+          px(26, 27, 44, 11, '#e2e8f0');
+          px(22, 34, 52, 6, '#cbd5e1');
+          for (let c = 28; c <= 66; c += 4) {
+            px(c, 28, 1, 9, '#475569');
+            px(c + 2, 30, 1, 4, '#fde047');
+          }
+          // Merah Putih flagpole & Kalimantan green lawn
+          px(18, 28, 1, 14, '#cbd5e1');
+          px(19, 28, 5, 2, '#ef4444');
+          px(19, 30, 5, 2, '#f8fafc');
+          px(0, 40, 96, 9, '#166534');
+        } else if (currentChar === 'trump') {
+          // Satire: Gold Tower, "THE WALL" bricks & giant $ sign
+          px(0, 0, 96, 28, '#1e3a8a');
+          px(0, 26, 96, 23, '#b45309'); // brick wall base
+          for (let wy = 28; wy < 48; wy += 4) {
+            px(0, wy, 96, 1, '#78350f');
+            for (let wx = (wy % 8 === 0 ? 0 : 4); wx < 96; wx += 8) {
+              px(wx, wy, 1, 4, '#78350f');
+            }
+          }
+          // Golden Trump Tower silhouette on left
+          px(8, 6, 16, 22, '#ca8a04');
+          px(10, 8, 12, 18, '#facc15');
+          px(12, 10, 8, 14, '#fef08a');
+          px(14, 3, 4, 3, '#fde047');
+          // Red MAGA cap & gold "$" trophy on right shelf
+          px(70, 14, 20, 2, '#78350f');
+          px(73, 10, 6, 4, '#dc2626');
+          px(71, 13, 4, 1, '#991b1b');
+          px(82, 8, 5, 6, '#facc15');
+          px(84, 9, 1, 4, '#16a34a');
+        } else if (currentChar === 'putin') {
+          // Satire: Kremlin onion domes + snowy window + ultra-long white table
+          px(0, 0, 96, 49, '#1e293b');
+          // Frosty window showing Kremlin red star & onion domes
+          px(6, 5, 28, 22, '#0f172a');
+          px(8, 7, 24, 18, '#bae6fd');
+          px(12, 14, 4, 11, '#991b1b');
+          px(13, 10, 2, 4, '#dc2626');
+          px(13, 8, 2, 2, '#ef4444'); // red star
+          px(21, 16, 5, 9, '#f59e0b');
+          px(22, 13, 3, 3, '#fbbf24');
+          // Ultra-long white conference table silhouette across wall
+          px(38, 24, 52, 4, '#f8fafc');
+          px(40, 28, 3, 14, '#cbd5e1');
+          px(85, 28, 3, 14, '#cbd5e1');
+          // Red "TOP SECRET" folder on shelf
+          px(70, 12, 18, 2, '#47362b');
+          px(74, 8, 8, 4, '#dc2626');
+          px(76, 9, 4, 1, '#fef08a');
+        } else if (currentChar === 'kim') {
+          // Satire: Rocket launchpad + red star propaganda banner
+          px(0, 0, 96, 49, '#1f161b');
+          // Red banner & gold star on wall
+          px(36, 4, 26, 10, '#991b1b');
+          px(47, 6, 4, 4, '#facc15');
+          px(48, 5, 2, 6, '#fde047');
+          // Rocket launch window on left
+          px(6, 6, 22, 24, '#0f172a');
+          px(8, 8, 18, 20, '#1e293b');
+          // Giant striped rocket
+          const rumble = tick % 4 < 2 ? 0 : 1;
+          px(15, 10 + rumble, 4, 12, '#f8fafc');
+          px(16, 8 + rumble, 2, 2, '#dc2626');
+          px(13, 19 + rumble, 2, 3, '#dc2626');
+          px(19, 19 + rumble, 2, 3, '#dc2626');
+          px(14, 22, 6, 4, '#f97316');
+          px(15, 24, 4, 3, '#fde047');
+          // Big red launch button on right shelf
+          px(70, 14, 18, 2, '#47362b');
+          px(75, 11, 8, 3, '#334155');
+          px(77, 9, 4, 2, '#ef4444');
+        } else if (currentChar === 'fufufafa') {
+          // Kaskus forum background for Fufufafa
+          px(0, 0, 96, 49, '#0f294a');
+          // Kaskus top navbar (blue + orange stripe)
+          px(0, 0, 96, 7, '#1d4ed8');
+          px(0, 7, 96, 2, '#f97316');
+          // Kaskus "K" pixel badge on left wall
+          px(6, 12, 14, 14, '#1e40af');
+          px(8, 14, 3, 10, '#f8fafc');
+          px(11, 18, 2, 2, '#f97316');
+          px(13, 15, 3, 3, '#f97316');
+          px(13, 20, 3, 4, '#f97316');
+          // Forum thread cards on wall
+          px(24, 12, 46, 8, '#163a66');
+          px(26, 14, 18, 2, '#f97316');
+          px(26, 17, 32, 1, '#93c5fd');
+          px(24, 22, 46, 8, '#163a66');
+          px(26, 24, 22, 2, '#38bdf8');
+          px(26, 27, 28, 1, '#cbd5e1');
+          // Cendol shelf on right
+          px(72, 14, 20, 2, '#47362b');
+          px(75, 9, 4, 5, '#22c55e');
+          px(76, 8, 2, 1, '#dcfce7');
+          px(81, 9, 4, 5, '#22c55e');
+          px(82, 8, 2, 1, '#dcfce7');
+        } else {
+          // Night studio room gradient bands
+          px(0, 0, 96, 72, '#0d1018');
+          px(0, 0, 96, 46, '#131826');
+          // Pixel window on left wall
+          px(6, 7, 20, 18, '#1f293d');
+          px(8, 9, 7, 6, '#18243a');
+          px(17, 9, 7, 6, '#18243a');
+          px(8, 17, 7, 6, '#18243a');
+          px(17, 17, 7, 6, '#18243a');
+          // Twinkling pixel stars outside window
+          if (tick % 24 < 18) px(10, 11, 1, 1, '#fef08a');
+          if ((tick + 10) % 30 < 20) px(21, 12, 1, 1, '#93c5fd');
+          px(12, 19, 1, 1, '#e2e8f0');
 
-        // Wall shelf on right
-        px(68, 14, 22, 2, '#47362b');
-        px(71, 9, 3, 5, '#60a5fa');
-        px(75, 8, 3, 6, '#f472b6');
-        px(79, 10, 3, 4, '#34d399');
+          // Wall shelf on right
+          px(68, 14, 22, 2, '#47362b');
+          px(71, 9, 3, 5, '#60a5fa');
+          px(75, 8, 3, 6, '#f472b6');
+          px(79, 10, 3, 4, '#34d399');
+        }
+        // Dark floor below desk
+        px(0, 49, 96, 23, '#0d1018');
 
         // Wooden desk
         px(8, 49, 80, 4, '#6b4c35');
@@ -455,15 +642,38 @@ function getWebviewHtml(
         px(74, 38, 3, 2, '#4ade80');
         px(79, 36, 3, 2, '#4ade80');
 
-        // Coffee mug on left side of desk
-        px(13, 44, 5, 5, '#e2e8f0');
-        px(18, 45, 2, 3, '#cbd5e1');
-        px(14, 44, 3, 1, '#78350f');
-        // Coffee steam
-        if (state === 'idle' || state === 'thinking') {
-          const steamY = 41 - (Math.floor(tick / 6) % 3);
-          px(14 + (Math.floor(tick / 8) % 2), steamY, 1, 2, 'rgba(226,232,240,0.45)');
-          px(16, steamY - 2, 1, 2, 'rgba(226,232,240,0.3)');
+        if (currentChar === 'kyubi' && state === 'idle') {
+          // Glowing Kyubi chakra aura on desk instead of coffee mug
+          const pulse = Math.floor(tick / 4) % 2;
+          px(14, 46 - pulse, 3, 3, 'rgba(249,115,22,0.55)');
+          px(15, 45 - pulse, 1, 1, '#fef08a');
+        } else if (currentChar === 'prabowo') {
+          // Mini pohon sawit (oil palm tree) on left side of desk instead of coffee mug
+          const sway = Math.floor(tick / 10) % 2;
+          px(14, 47, 5, 2, '#92400e');
+          px(16, 41, 2, 6, '#78350f');
+          px(15, 43, 1, 1, '#a16207');
+          px(18, 44, 1, 1, '#a16207');
+          px(15, 40, 2, 2, '#ea580c');
+          px(17, 40, 1, 1, '#f97316');
+          px(11 + sway, 39, 5, 1, '#16a34a');
+          px(10 + sway, 40, 2, 1, '#22c55e');
+          px(17 + sway, 39, 5, 1, '#16a34a');
+          px(21 + sway, 40, 2, 1, '#22c55e');
+          px(13, 37, 3, 2, '#22c55e');
+          px(17, 37, 3, 2, '#15803d');
+          px(15, 36, 3, 2, '#4ade80');
+        } else {
+          // Coffee mug on left side of desk
+          px(13, 44, 5, 5, '#e2e8f0');
+          px(18, 45, 2, 3, '#cbd5e1');
+          px(14, 44, 3, 1, '#78350f');
+          // Coffee steam
+          if (state === 'idle' || state === 'thinking') {
+            const steamY = 41 - (Math.floor(tick / 6) % 3);
+            px(14 + (Math.floor(tick / 8) % 2), steamY, 1, 2, 'rgba(226,232,240,0.45)');
+            px(16, steamY - 2, 1, 2, 'rgba(226,232,240,0.3)');
+          }
         }
 
         // Monitor on center-left of desk (screen facing slightly right/front)
@@ -675,6 +885,415 @@ function getWebviewHtml(
         px(45, 47, 11, 1, '#94a3b8');
       }
 
+      function drawJokowi(state, reacting) {
+        const phase = (18 - reactionTicksLeft) % 8;
+        const hit = reacting && phase >= 3 && phase <= 5;
+        const bob = reacting
+          ? 0
+          : state === 'done'
+            ? (tick % 8 < 4 ? -2 : 0)
+            : state === 'coding'
+              ? (tick % 4 < 2 ? -1 : 0)
+              : (tick % 24 < 12 ? 0 : 1);
+        const jx = 50 - (hit ? 2 : 0);
+        const jy = 26 + (hit ? 1 : 0) + bob;
+        const blink = state === 'idle' && (tick % 46 > 42);
+
+        // Sleek side-parted black hair with higher forehead & slight volume on left
+        px(jx + 4, jy, 7, 2, '#0f172a');
+        px(jx + 3, jy + 1, 9, 2, '#1e293b');
+        px(jx + 5, jy + 1, 2, 1, '#475569');
+        px(jx + 3, jy + 3, 1, 3, '#0f172a');
+        px(jx + 11, jy + 3, 1, 3, '#0f172a');
+
+        // Slimmer oval face with warm tan skin & cheekbones
+        px(jx + 4, jy + 3, 7, 8, '#dfa670');
+        px(jx + 3, jy + 5, 9, 4, '#dfa670');
+        px(jx + 5, jy + 11, 5, 1, '#c98a55');
+        px(jx + 3, jy + 7, 1, 2, '#c98a55');
+        px(jx + 11, jy + 7, 1, 2, '#c98a55');
+
+        // Subtle eyebrows & nose bridge
+        px(jx + 4, jy + 5, 2, 1, '#1e293b');
+        px(jx + 9, jy + 5, 2, 1, '#1e293b');
+        px(jx + 7, jy + 7, 1, 2, '#c98a55');
+
+        // Eyes & signature warm grin
+        if (reacting) {
+          px(jx + 4, jy + 6, 2, 2, '#0f172a');
+          px(jx + 9, jy + 6, 2, 2, '#0f172a');
+          px(jx + 4, jy + 6, 1, 1, '#ffffff');
+          px(jx + 9, jy + 6, 1, 1, '#ffffff');
+          px(jx + 6, jy + 10, 3, 1, '#7c2d12');
+        } else if (blink || state === 'idle') {
+          px(jx + 4, jy + 7, 2, 1, '#1e293b');
+          px(jx + 9, jy + 7, 2, 1, '#1e293b');
+          px(jx + 6, jy + 10, 3, 1, '#ffffff');
+        } else {
+          const shift = state === 'reading' ? (Math.floor(tick / 6) % 2 === 0 ? -1 : 0) : 0;
+          px(jx + 4 + shift, jy + 6, 2, 2, '#0f172a');
+          px(jx + 9 + shift, jy + 6, 2, 2, '#0f172a');
+          px(jx + 6, jy + 10, 3, 1, '#ffffff');
+        }
+
+        // Slimmer white shirt with collar, front placket, chest pocket & rolled-up sleeves
+        px(jx + 2, jy + 12, 11, 8, '#f8fafc');
+        px(jx + 4, jy + 12, 7, 2, '#e2e8f0');
+        px(jx + 7, jy + 14, 1, 6, '#cbd5e1');
+        px(jx + 9, jy + 15, 3, 2, '#e2e8f0');
+        // Rolled sleeve cuffs + exposed forearms
+        px(jx + 1, jy + 13, 2, 3, '#e2e8f0');
+        px(jx + 12, jy + 13, 2, 3, '#e2e8f0');
+        px(jx + 1, jy + 16, 2, 2, '#dfa670');
+        px(jx + 12, jy + 16, 2, 2, '#dfa670');
+        // Black belt/trousers
+        px(jx + 2, jy + 20, 11, 2, '#0f172a');
+
+        // Hands
+        const fastType = state === 'coding' || state === 'terminal';
+        const lUp = reacting ? 4 : (fastType && (tick % 4 < 2) ? 2 : 0);
+        const rUp = reacting ? 4 : (fastType && (tick % 4 >= 2) ? 2 : 0);
+        if (state === 'thinking' && !reacting) {
+          px(jx + 1, jy + 12, 3, 3, '#dfa670');
+          px(jx + 10, jy + 18, 3, 3, '#dfa670');
+        } else {
+          px(jx - 1, jy + 18 - lUp, 4, 3, '#dfa670');
+          px(jx + 5, jy + 19 - rUp, 4, 3, '#dfa670');
+        }
+
+        // Keyboard
+        px(44, 47, 13, 2, '#64748b');
+        px(45, 47, 11, 1, '#94a3b8');
+      }
+
+      function drawPrabowo(state, reacting) {
+        const phase = (18 - reactionTicksLeft) % 8;
+        const hit = reacting && phase >= 3 && phase <= 5;
+        const bob = reacting
+          ? 0
+          : state === 'done'
+            ? (tick % 8 < 4 ? -2 : 0)
+            : state === 'coding'
+              ? (tick % 4 < 2 ? -1 : 0)
+              : (tick % 24 < 12 ? 0 : 1);
+        const px0 = 50 - (hit ? 2 : 0);
+        const py0 = 26 + (hit ? 1 : 0) + bob;
+        const blink = state === 'idle' && (tick % 46 > 42);
+
+        // Iconic black Peci cap + dark hair sides
+        px(px0 + 3, py0, 9, 4, '#0f172a');
+        px(px0 + 4, py0, 7, 1, '#1e293b');
+        px(px0 + 2, py0 + 4, 1, 3, '#334155');
+        px(px0 + 12, py0 + 4, 1, 3, '#334155');
+
+        // Face & thick eyebrows
+        px(px0 + 3, py0 + 4, 9, 8, '#f3c99b');
+        px(px0 + 4, py0 + 5, 2, 1, '#1e293b');
+        px(px0 + 9, py0 + 5, 2, 1, '#1e293b');
+
+        // Eyes & expression
+        if (reacting) {
+          px(px0 + 4, py0 + 6, 2, 2, '#0f172a');
+          px(px0 + 9, py0 + 6, 2, 2, '#0f172a');
+          px(px0 + 4, py0 + 6, 1, 1, '#ffffff');
+          px(px0 + 9, py0 + 6, 1, 1, '#ffffff');
+          px(px0 + 6, py0 + 10, 3, 1, '#9a3412');
+        } else if (blink) {
+          px(px0 + 4, py0 + 7, 2, 1, '#1e293b');
+          px(px0 + 9, py0 + 7, 2, 1, '#1e293b');
+        } else {
+          const shift = state === 'reading' ? (Math.floor(tick / 6) % 2 === 0 ? -1 : 0) : 0;
+          px(px0 + 4 + shift, py0 + 6, 2, 2, '#0f172a');
+          px(px0 + 9 + shift, py0 + 6, 2, 2, '#0f172a');
+          px(px0 + 6, py0 + 10, 3, 1, '#9a3412');
+        }
+
+        // Cream/khaki safari shirt with chest pockets
+        px(px0 + 1, py0 + 12, 13, 10, '#e5d5b5');
+        px(px0 + 4, py0 + 12, 7, 2, '#f5efe2');
+        px(px0 + 2, py0 + 15, 3, 3, '#c7b28a');
+        px(px0 + 10, py0 + 15, 3, 3, '#c7b28a');
+        px(px0 + 7, py0 + 14, 1, 6, '#b8a074');
+
+        // Hands
+        const fastType = state === 'coding' || state === 'terminal';
+        const lUp = reacting ? 4 : (fastType && (tick % 4 < 2) ? 2 : 0);
+        const rUp = reacting ? 4 : (fastType && (tick % 4 >= 2) ? 2 : 0);
+        if (state === 'thinking' && !reacting) {
+          px(px0 + 1, py0 + 12, 3, 3, '#f3c99b');
+          px(px0 + 10, py0 + 18, 3, 3, '#f3c99b');
+        } else {
+          px(px0 - 1, py0 + 18 - lUp, 4, 3, '#f3c99b');
+          px(px0 + 5, py0 + 19 - rUp, 4, 3, '#f3c99b');
+        }
+
+        // Keyboard
+        px(44, 47, 13, 2, '#64748b');
+        px(45, 47, 11, 1, '#94a3b8');
+      }
+
+      function drawTrump(state, reacting) {
+        const phase = (18 - reactionTicksLeft) % 8;
+        const hit = reacting && phase >= 3 && phase <= 5;
+        const bob = reacting
+          ? 0
+          : state === 'done'
+            ? (tick % 8 < 4 ? -2 : 0)
+            : state === 'coding'
+              ? (tick % 4 < 2 ? -1 : 0)
+              : (tick % 24 < 12 ? 0 : 1);
+        const tx = 50 - (hit ? 2 : 0);
+        const ty = 26 + (hit ? 1 : 0) + bob;
+        const blink = state === 'idle' && (tick % 46 > 42);
+
+        // Swooped golden-blonde comb-over hair
+        px(tx + 2, ty - 1, 10, 3, '#facc15');
+        px(tx + 1, ty, 5, 2, '#fde047');
+        px(tx + 11, ty + 1, 2, 3, '#eab308');
+        px(tx + 2, ty + 2, 10, 2, '#eab308');
+
+        // Orange-tan face with pale eye area
+        px(tx + 3, ty + 4, 9, 8, '#fb923c');
+        px(tx + 4, ty + 5, 3, 2, '#fdba74');
+        px(tx + 8, ty + 5, 3, 2, '#fdba74');
+
+        // Brows & eyes
+        px(tx + 4, jyOffset(ty, 5), 2, 1, '#eab308');
+        px(tx + 9, jyOffset(ty, 5), 2, 1, '#eab308');
+        if (reacting) {
+          px(tx + 4, ty + 6, 2, 2, '#0f172a');
+          px(tx + 9, ty + 6, 2, 2, '#0f172a');
+          px(tx + 4, ty + 6, 1, 1, '#ffffff');
+          px(tx + 9, ty + 6, 1, 1, '#ffffff');
+          px(tx + 6, ty + 10, 3, 1, '#9a3412');
+        } else if (blink) {
+          px(tx + 4, ty + 7, 2, 1, '#1e293b');
+          px(tx + 9, ty + 7, 2, 1, '#1e293b');
+        } else {
+          const shift = state === 'reading' ? (Math.floor(tick / 6) % 2 === 0 ? -1 : 0) : 0;
+          px(tx + 4 + shift, ty + 6, 2, 2, '#0f172a');
+          px(tx + 9 + shift, ty + 6, 2, 2, '#0f172a');
+          px(tx + 6, ty + 10, 3, 1, '#c2410c');
+        }
+
+        // Navy suit, white collar & long red tie
+        px(tx + 1, ty + 12, 13, 10, '#1e293b');
+        px(tx + 5, ty + 12, 5, 3, '#f8fafc');
+        px(tx + 6, ty + 13, 3, 2, '#dc2626');
+        px(tx + 7, ty + 15, 1, 7, '#ef4444');
+
+        // Hands
+        const fastType = state === 'coding' || state === 'terminal';
+        const lUp = reacting ? 4 : (fastType && (tick % 4 < 2) ? 2 : 0);
+        const rUp = reacting ? 4 : (fastType && (tick % 4 >= 2) ? 2 : 0);
+        if (state === 'thinking' && !reacting) {
+          px(tx + 1, ty + 12, 3, 3, '#fdba74');
+          px(tx + 10, ty + 18, 3, 3, '#fdba74');
+        } else {
+          px(tx - 1, ty + 18 - lUp, 4, 3, '#fdba74');
+          px(tx + 5, ty + 19 - rUp, 4, 3, '#fdba74');
+        }
+
+        // Keyboard
+        px(44, 47, 13, 2, '#64748b');
+        px(45, 47, 11, 1, '#94a3b8');
+      }
+
+      function jyOffset(y, off) {
+        return y + off;
+      }
+
+      function drawPutin(state, reacting) {
+        const phase = (18 - reactionTicksLeft) % 8;
+        const hit = reacting && phase >= 3 && phase <= 5;
+        const bob = reacting
+          ? 0
+          : state === 'done'
+            ? (tick % 8 < 4 ? -2 : 0)
+            : state === 'coding'
+              ? (tick % 4 < 2 ? -1 : 0)
+              : (tick % 24 < 12 ? 0 : 1);
+        const ux = 50 - (hit ? 2 : 0);
+        const uy = 26 + (hit ? 1 : 0) + bob;
+        const blink = state === 'idle' && (tick % 46 > 42);
+
+        // High receding hairline with thin ash-blonde hair on sides
+        px(ux + 4, uy + 1, 7, 1, '#cbd5e1');
+        px(ux + 3, uy + 2, 2, 3, '#94a3b8');
+        px(ux + 10, uy + 2, 2, 3, '#94a3b8');
+
+        // Fair cool face
+        px(ux + 3, uy + 2, 9, 10, '#fde68a');
+        px(ux + 4, uy + 1, 7, 1, '#fde68a');
+        px(ux + 4, uy + 5, 2, 1, '#94a3b8');
+        px(ux + 9, uy + 5, 2, 1, '#94a3b8');
+
+        if (reacting) {
+          px(ux + 4, uy + 6, 2, 2, '#0f172a');
+          px(ux + 9, uy + 6, 2, 2, '#0f172a');
+          px(ux + 4, uy + 6, 1, 1, '#ffffff');
+          px(ux + 9, uy + 6, 1, 1, '#ffffff');
+          px(ux + 6, uy + 10, 3, 1, '#b45309');
+        } else if (blink) {
+          px(ux + 4, uy + 7, 2, 1, '#1e293b');
+          px(ux + 9, uy + 7, 2, 1, '#1e293b');
+        } else {
+          const shift = state === 'reading' ? (Math.floor(tick / 6) % 2 === 0 ? -1 : 0) : 0;
+          px(ux + 4 + shift, uy + 6, 2, 1, '#0f172a');
+          px(ux + 9 + shift, uy + 6, 2, 1, '#0f172a');
+          px(ux + 6, uy + 10, 3, 1, '#b45309');
+        }
+
+        // Dark charcoal suit, white shirt & burgundy tie
+        px(ux + 1, uy + 12, 13, 10, '#0f172a');
+        px(ux + 5, uy + 12, 5, 3, '#f8fafc');
+        px(ux + 7, uy + 13, 1, 6, '#991b1b');
+
+        const fastType = state === 'coding' || state === 'terminal';
+        const lUp = reacting ? 4 : (fastType && (tick % 4 < 2) ? 2 : 0);
+        const rUp = reacting ? 4 : (fastType && (tick % 4 >= 2) ? 2 : 0);
+        if (state === 'thinking' && !reacting) {
+          px(ux + 1, uy + 12, 3, 3, '#fde68a');
+          px(ux + 10, uy + 18, 3, 3, '#fde68a');
+        } else {
+          px(ux - 1, uy + 18 - lUp, 4, 3, '#fde68a');
+          px(ux + 5, uy + 19 - rUp, 4, 3, '#fde68a');
+        }
+
+        // Keyboard
+        px(44, 47, 13, 2, '#64748b');
+        px(45, 47, 11, 1, '#94a3b8');
+      }
+
+      function drawKim(state, reacting) {
+        const phase = (18 - reactionTicksLeft) % 8;
+        const hit = reacting && phase >= 3 && phase <= 5;
+        const bob = reacting
+          ? 0
+          : state === 'done'
+            ? (tick % 8 < 4 ? -2 : 0)
+            : state === 'coding'
+              ? (tick % 4 < 2 ? -1 : 0)
+              : (tick % 24 < 12 ? 0 : 1);
+        const mx = 50 - (hit ? 2 : 0);
+        const my = 26 + (hit ? 1 : 0) + bob;
+        const blink = state === 'idle' && (tick % 46 > 42);
+
+        // Iconic flat-top trapezoid black hair with shaved sides
+        px(mx + 3, my - 1, 9, 4, '#0f172a');
+        px(mx + 2, my, 1, 2, '#1e293b');
+        px(mx + 12, my, 1, 2, '#1e293b');
+
+        // Rounder face & cheeks
+        px(mx + 2, my + 3, 11, 9, '#f5cfa0');
+        px(mx + 3, my + 11, 9, 1, '#e5b887');
+
+        if (reacting) {
+          px(mx + 4, my + 6, 2, 2, '#0f172a');
+          px(mx + 9, my + 6, 2, 2, '#0f172a');
+          px(mx + 4, my + 6, 1, 1, '#ffffff');
+          px(mx + 9, my + 6, 1, 1, '#ffffff');
+          px(mx + 6, my + 10, 3, 1, '#9a3412');
+        } else if (blink) {
+          px(mx + 4, my + 7, 2, 1, '#1e293b');
+          px(mx + 9, my + 7, 2, 1, '#1e293b');
+        } else {
+          const shift = state === 'reading' ? (Math.floor(tick / 6) % 2 === 0 ? -1 : 0) : 0;
+          px(mx + 4 + shift, my + 6, 2, 2, '#0f172a');
+          px(mx + 9 + shift, my + 6, 2, 2, '#0f172a');
+          px(mx + 6, my + 10, 3, 1, '#b45309');
+        }
+
+        // Dark charcoal Mao suit (mandarin collar, buttoned center)
+        px(mx + 1, my + 12, 13, 10, '#1e293b');
+        px(mx + 4, my + 12, 7, 2, '#334155');
+        px(mx + 7, my + 14, 1, 6, '#0f172a');
+
+        const fastType = state === 'coding' || state === 'terminal';
+        const lUp = reacting ? 4 : (fastType && (tick % 4 < 2) ? 2 : 0);
+        const rUp = reacting ? 4 : (fastType && (tick % 4 >= 2) ? 2 : 0);
+        if (state === 'thinking' && !reacting) {
+          px(mx + 1, my + 12, 3, 3, '#f5cfa0');
+          px(mx + 10, my + 18, 3, 3, '#f5cfa0');
+        } else {
+          px(mx - 1, my + 18 - lUp, 4, 3, '#f5cfa0');
+          px(mx + 5, my + 19 - rUp, 4, 3, '#f5cfa0');
+        }
+
+        // Keyboard
+        px(44, 47, 13, 2, '#64748b');
+        px(45, 47, 11, 1, '#94a3b8');
+      }
+
+      function drawFufufafa(state, reacting) {
+        const phase = (18 - reactionTicksLeft) % 8;
+        const hit = reacting && phase >= 3 && phase <= 5;
+        const bob = reacting
+          ? 0
+          : state === 'done'
+            ? (tick % 8 < 4 ? -2 : 0)
+            : state === 'coding'
+              ? (tick % 4 < 2 ? -1 : 0)
+              : (tick % 24 < 12 ? 0 : 1);
+        const fx = 50 - (hit ? 2 : 0);
+        const fy = 26 + (hit ? 1 : 0) + bob;
+        const blink = state === 'idle' && (tick % 46 > 42);
+
+        // Short neat swept black hair
+        px(fx + 3, fy, 9, 4, '#0f172a');
+        px(fx + 4, fy, 6, 1, '#1e293b');
+        px(fx + 11, fy + 2, 1, 4, '#1e293b');
+
+        // Face & serious focused expression (brows slightly furrowed)
+        px(fx + 3, fy + 4, 9, 8, '#f0c495');
+        px(fx + 4, fy + 5, 2, 1, '#1e293b');
+        px(fx + 9, fy + 5, 2, 1, '#1e293b');
+
+        if (reacting) {
+          px(fx + 4, fy + 6, 2, 2, '#0f172a');
+          px(fx + 9, fy + 6, 2, 2, '#0f172a');
+          px(fx + 4, fy + 6, 1, 1, '#ffffff');
+          px(fx + 9, fy + 6, 1, 1, '#ffffff');
+          px(fx + 6, fy + 10, 3, 1, '#9a3412');
+        } else if (blink) {
+          px(fx + 4, fy + 7, 2, 1, '#1e293b');
+          px(fx + 9, fy + 7, 2, 1, '#1e293b');
+          px(fx + 6, fy + 10, 3, 1, '#9a3412');
+        } else {
+          // Focused gaze slightly left
+          px(fx + 3, fy + 6, 2, 2, '#0f172a');
+          px(fx + 8, fy + 6, 2, 2, '#0f172a');
+          px(fx + 6, fy + 10, 3, 1, '#9a3412');
+        }
+
+        // Light-blue & dark-slate zip-up jacket with white stand-up collar + orange swirl emblem
+        px(fx + 1, fy + 12, 13, 4, '#475569');
+        px(fx + 1, fy + 16, 13, 6, '#7dd3fc');
+        px(fx + 4, fy + 11, 7, 3, '#f8fafc');
+        px(fx + 7, fy + 14, 1, 8, '#e2e8f0');
+        // Orange swirl emblem on chest
+        px(fx + 4, fy + 17, 3, 3, '#f97316');
+        px(fx + 5, fy + 18, 1, 1, '#7c2d12');
+
+        // Signature two-finger salute / thinking hand at temple when idle or thinking
+        const fastType = state === 'coding' || state === 'terminal';
+        const lUp = reacting ? 4 : (fastType && (tick % 4 < 2) ? 2 : 0);
+        const rUp = reacting ? 4 : (fastType && (tick % 4 >= 2) ? 2 : 0);
+        if ((state === 'idle' || state === 'thinking') && !reacting) {
+          // Raised right arm in light-blue sleeve + fingers at brow/temple
+          px(fx - 2, fy + 8, 3, 7, '#7dd3fc');
+          px(fx - 1, fy + 5, 4, 3, '#f0c495');
+          px(fx + 10, fy + 18, 3, 3, '#f0c495');
+        } else {
+          px(fx - 1, fy + 18 - lUp, 4, 3, '#f0c495');
+          px(fx + 5, fy + 19 - rUp, 4, 3, '#f0c495');
+        }
+
+        // Keyboard
+        px(44, 47, 13, 2, '#64748b');
+        px(45, 47, 11, 1, '#94a3b8');
+      }
+
       function drawDev(state, reacting) {
         const phase = (18 - reactionTicksLeft) % 8;
         const hit = reacting && phase >= 3 && phase <= 5;
@@ -733,11 +1352,128 @@ function getWebviewHtml(
         px(45, 47, 11, 1, '#94a3b8');
       }
 
+      function drawKyubi(state, reacting) {
+        const phase = (18 - reactionTicksLeft) % 8;
+        const hit = reacting && (phase === 3 || phase === 4 || phase === 5);
+        const bob = reacting
+          ? 0
+          : state === 'done'
+            ? (tick % 8 < 4 ? -2 : 0)
+            : state === 'coding'
+              ? (tick % 4 < 2 ? -1 : 0)
+              : (tick % 24 < 12 ? 0 : 1);
+        const kx = 50 - (hit ? 2 : 0);
+        const ky = 27 + (hit ? 1 : 0) + bob;
+        const blink = state === 'idle' && (tick % 46 > 42);
+        const fastType = state === 'coding' || state === 'terminal';
+        const leftPawUp = reacting ? 5 : (fastType && (tick % 4 < 2) ? 3 : 0);
+        const rightPawUp = reacting ? 5 : (fastType && (tick % 4 >= 2) ? 3 : 0);
+
+        // Swaying nine-tails fan behind Kyubi
+        const sway = Math.floor(tick / (reacting ? 2 : 6)) % 2;
+        px(kx + 13, ky + 15 - sway, 5, 2, '#c2410c');
+        px(kx + 17, ky + 13 - sway, 4, 2, '#ea580c');
+        px(kx + 20, ky + 12 - sway, 2, 2, '#fed7aa');
+
+        px(kx + 13, ky + 11 + sway, 6, 2, '#ea580c');
+        px(kx + 18, ky + 9 + sway, 4, 2, '#f97316');
+        px(kx + 21, ky + 8 + sway, 2, 2, '#fde68a');
+
+        px(kx + 12, ky + 7 - sway, 5, 2, '#f97316');
+        px(kx + 16, ky + 4 - sway, 4, 3, '#fb923c');
+        px(kx + 19, ky + 3 - sway, 2, 2, '#fed7aa');
+
+        px(kx + 12, ky + 18, 5, 2, '#9a3412');
+        px(kx + 16, ky + 17 + sway, 4, 2, '#ea580c');
+
+        // Body & spiky chest fur
+        px(kx + 2, ky + 11, 11, 10, '#ea580c');
+        px(kx + 4, ky + 12, 7, 8, '#fdba74');
+        px(kx + 5, ky + 14, 5, 5, '#fed7aa');
+
+        // Tall pointed fox ears with dark tips
+        px(kx + 1, ky - 2, 3, 6, '#ea580c');
+        px(kx + 1, ky - 2, 2, 2, '#431407');
+        px(kx + 2, ky + 1, 1, 2, '#fdba74');
+
+        px(kx + 11, ky - 2, 3, 6, '#ea580c');
+        px(kx + 12, ky - 2, 2, 2, '#431407');
+        px(kx + 12, ky + 1, 1, 2, '#fdba74');
+
+        // Head & spiky cheek tufts
+        px(kx + 1, ky + 3, 13, 9, '#f97316');
+        px(kx, ky + 6, 1, 3, '#ea580c');
+        px(kx + 14, ky + 6, 1, 3, '#ea580c');
+        px(kx + 3, ky + 8, 9, 4, '#fed7aa');
+
+        // Dark eye markings
+        px(kx + 3, ky + 5, 3, 2, '#7c2d12');
+        px(kx + 9, ky + 5, 3, 2, '#7c2d12');
+
+        // Eyes
+        if (reacting) {
+          const eyeC = hit ? '#fde047' : '#ef4444';
+          px(kx + 3, ky + 5, 1, 1, eyeC);
+          px(kx + 4, ky + 6, 1, 1, eyeC);
+          px(kx + 3, ky + 7, 1, 1, eyeC);
+          px(kx + 11, ky + 5, 1, 1, eyeC);
+          px(kx + 10, ky + 6, 1, 1, eyeC);
+          px(kx + 11, ky + 7, 1, 1, eyeC);
+          px(kx + 6, ky + 10, 3, 1, '#7c2d12');
+        } else if (blink || state === 'done') {
+          px(kx + 4, ky + 6, 2, 1, '#dc2626');
+          px(kx + 9, ky + 6, 2, 1, '#dc2626');
+        } else {
+          const look = state === 'reading' ? (Math.floor(tick / 6) % 2 === 0 ? -1 : 0) : 0;
+          px(kx + 4 + look, ky + 5, 2, 2, '#dc2626');
+          px(kx + 9 + look, ky + 5, 2, 2, '#dc2626');
+          px(kx + 4 + look, ky + 5, 1, 2, '#0f172a');
+          px(kx + 10 + look, ky + 5, 1, 2, '#0f172a');
+        }
+
+        // Nose & fangs
+        px(kx + 7, ky + 8, 1, 1, '#1e293b');
+        px(kx + 5, ky + 10, 1, 1, '#ffffff');
+        px(kx + 9, ky + 10, 1, 1, '#ffffff');
+
+        // Paws
+        if (state === 'thinking' && !reacting) {
+          px(kx + 1, ky + 11, 3, 3, '#fed7aa');
+          px(kx + 10, ky + 17, 3, 3, '#fed7aa');
+        } else {
+          px(kx - 1, ky + 17 - leftPawUp, 4, 3, '#fed7aa');
+          px(kx + 5, ky + 18 - rightPawUp, 4, 3, '#fed7aa');
+        }
+
+        // Keyboard
+        px(44, 47, 13, 2, '#64748b');
+        px(45, 47, 11, 1, '#94a3b8');
+      }
+
       function drawHumanActor(hx, hy, trainer, mood) {
-        const sleeve = trainer === 'girl' ? '#f43f5e' : trainer === 'sensei' ? '#0f766e' : '#334155';
+        const sleeveMap = {
+          girl: '#f43f5e',
+          sensei: '#0f766e',
+          naruto: '#f97316',
+          jokowi: '#f8fafc',
+          prabowo: '#e5d5b5',
+          trump: '#1e293b',
+          putin: '#0f172a',
+          kim: '#1e293b',
+          fufufafa: '#7dd3fc'
+        };
+        const skinMap = {
+          jokowi: '#dfa670',
+          prabowo: '#f3c99b',
+          trump: '#fb923c',
+          kim: '#f5cfa0',
+          fufufafa: '#f0c495'
+        };
+        const sleeve = sleeveMap[trainer] || '#334155';
+        const skin = skinMap[trainer] || '#fde68a';
 
         // Head & face (facing left, larger scale)
-        px(hx + 2, hy + 6, 10, 8, '#fde68a');
+        px(hx + 2, hy + 6, 10, 8, skin);
 
         if (trainer === 'girl') {
           // Chestnut hair, bangs, long ponytail & yellow ribbon
@@ -753,6 +1489,44 @@ function getWebviewHtml(
           px(hx + 11, hy + 2, 4, 5, '#cbd5e1');
           px(hx + 1, hy + 4, 12, 2, '#7c3aed');
           px(hx + 13, hy + 4, 3, 4, '#a855f7');
+        } else if (trainer === 'naruto') {
+          // Spiky bright yellow hair + Konoha forehead protector headband
+          px(hx + 1, hy, 3, 4, '#facc15');
+          px(hx + 5, hy - 1, 4, 5, '#fde047');
+          px(hx + 10, hy, 4, 4, '#eab308');
+          px(hx + 2, hy + 2, 11, 3, '#facc15');
+          px(hx + 12, hy + 3, 3, 4, '#eab308');
+          px(hx + 1, hy + 4, 12, 2, '#1e293b');
+          px(hx + 3, hy + 4, 5, 2, '#cbd5e1');
+          px(hx + 13, hy + 4, 3, 2, '#1e293b');
+        } else if (trainer === 'jokowi') {
+          // Sleek side-parted dark hair & high forehead
+          px(hx + 3, hy + 1, 9, 3, '#0f172a');
+          px(hx + 5, hy + 1, 3, 1, '#475569');
+          px(hx + 11, hy + 4, 2, 6, '#1e293b');
+        } else if (trainer === 'prabowo') {
+          // Iconic black Peci cap + dark side hair
+          px(hx + 2, hy + 1, 10, 5, '#0f172a');
+          px(hx + 3, hy + 1, 7, 1, '#1e293b');
+          px(hx + 11, hy + 6, 2, 4, '#334155');
+        } else if (trainer === 'trump') {
+          // Swooped golden-blonde comb-over hair
+          px(hx + 1, hy + 1, 11, 4, '#facc15');
+          px(hx, hy + 2, 5, 2, '#fde047');
+          px(hx + 11, hy + 3, 2, 4, '#eab308');
+        } else if (trainer === 'putin') {
+          // High receding hairline with thin ash-blonde back/side hair
+          px(hx + 5, hy + 2, 7, 2, '#cbd5e1');
+          px(hx + 11, hy + 4, 2, 5, '#94a3b8');
+        } else if (trainer === 'kim') {
+          // Flat-top trapezoid black hair with shaved sides
+          px(hx + 2, hy, 10, 5, '#0f172a');
+          px(hx + 11, hy + 2, 2, 3, '#1e293b');
+        } else if (trainer === 'fufufafa') {
+          // Short neat swept black hair
+          px(hx + 2, hy + 1, 10, 4, '#0f172a');
+          px(hx + 3, hy + 1, 6, 1, '#1e293b');
+          px(hx + 11, hy + 4, 2, 5, '#1e293b');
         } else {
           // Boss red cap facing left + dark back hair
           px(hx + 2, hy, 11, 5, '#dc2626');
@@ -761,7 +1535,7 @@ function getWebviewHtml(
           px(hx + 11, hy + 5, 3, 5, '#1e293b');
         }
 
-        // Facial expression (warm smile when petting vs fierce focus when whipping)
+        // Facial expression (warm smile when petting vs fierce focus when attacking)
         if (trainer === 'sensei') {
           px(hx + 2, hy + 8, 6, 3, '#0f172a');
           px(hx + 3, hy + 9, 3, 1, '#38bdf8');
@@ -772,11 +1546,22 @@ function getWebviewHtml(
           px(hx + 5, hy + 8, 1, 1, '#0f172a');
           px(hx + 2, hy + 11, 2, 1, '#fda4af');
           px(hx + 4, hy + 12, 3, 1, '#b45309');
+        } else if (trainer === 'naruto') {
+          px(hx + 3, hy + 8, 4, 1, '#b45309');
+          px(hx + 4, hy + 9, 2, 2, '#0284c7');
+          px(hx + 4, hy + 9, 1, 1, '#7dd3fc');
+          px(hx + 3, hy + 12, 3, 1, '#b45309');
         } else {
-          px(hx + 3, hy + 8, 4, 1, '#1e293b');
+          px(hx + 3, hy + 8, 4, 1, trainer === 'trump' ? '#eab308' : '#1e293b');
           px(hx + 4, hy + 9, 2, 2, '#0f172a');
           px(hx + 4, hy + 9, 1, 1, '#ffffff');
-          px(hx + 3, hy + 12, 3, 1, '#b45309');
+          px(hx + 3, hy + 12, 3, 1, trainer === 'jokowi' ? '#ffffff' : '#b45309');
+        }
+
+        if (trainer === 'naruto') {
+          // Iconic fox whisker marks on cheek
+          px(hx + 7, hy + 10, 2, 1, '#d97706');
+          px(hx + 7, hy + 12, 2, 1, '#d97706');
         }
 
         // Torso & outfit (standing behind desk down to y = 49)
@@ -788,6 +1573,38 @@ function getWebviewHtml(
         } else if (trainer === 'sensei') {
           px(hx + 2, hy + 14, 4, 9, '#fef3c7');
           px(hx + 1, hy + 27, 13, 3, '#fbbf24');
+        } else if (trainer === 'naruto') {
+          px(hx + 1, hy + 14, 13, 4, '#1e293b');
+          px(hx + 3, hy + 14, 3, 14, '#f8fafc');
+          px(hx + 1, hy + 28, 13, 3, '#1e293b');
+        } else if (trainer === 'jokowi') {
+          px(hx + 2, hy + 14, 4, 2, '#e2e8f0');
+          px(hx + 4, hy + 16, 1, 11, '#cbd5e1');
+          px(hx + 1, hy + 28, 13, 3, '#0f172a');
+        } else if (trainer === 'prabowo') {
+          px(hx + 2, hy + 14, 4, 2, '#f5efe2');
+          px(hx + 2, hy + 18, 4, 4, '#c7b28a');
+          px(hx + 1, hy + 29, 13, 2, '#78350f');
+        } else if (trainer === 'trump') {
+          px(hx + 2, hy + 14, 4, 8, '#f8fafc');
+          px(hx + 3, hy + 16, 2, 11, '#dc2626');
+          px(hx + 1, hy + 29, 13, 2, '#0f172a');
+        } else if (trainer === 'putin') {
+          px(hx + 2, hy + 14, 4, 8, '#f8fafc');
+          px(hx + 3, hy + 16, 2, 8, '#991b1b');
+          px(hx + 1, hy + 29, 13, 2, '#0f172a');
+        } else if (trainer === 'kim') {
+          px(hx + 2, hy + 14, 4, 2, '#334155');
+          px(hx + 4, hy + 16, 1, 11, '#0f172a');
+          px(hx + 1, hy + 29, 13, 2, '#0f172a');
+        } else if (trainer === 'fufufafa') {
+          // Dark-slate shoulders, light-blue jacket, white stand-up collar & orange swirl
+          px(hx + 1, hy + 14, 13, 5, '#475569');
+          px(hx + 2, hy + 13, 5, 3, '#f8fafc');
+          px(hx + 5, hy + 16, 1, 12, '#e2e8f0');
+          px(hx + 2, hy + 20, 3, 3, '#f97316');
+          px(hx + 3, hy + 21, 1, 1, '#7c2d12');
+          px(hx + 1, hy + 29, 13, 2, '#0f172a');
         } else {
           px(hx + 2, hy + 14, 4, 8, '#f8fafc');
           px(hx + 3, hy + 16, 2, 7, '#ef4444');
@@ -818,38 +1635,82 @@ function getWebviewHtml(
             px(ox + 1, oy + 2, 1, 1, col);
           }
         } else {
-          // Larger human character standing behind right side of desk cracking a whip left onto buddy
+          // Larger human character standing behind right side of desk
           const phase = (18 - reactionTicksLeft) % 8;
           const hx = 75;
           const hy = 18;
           const sleeve = drawHumanActor(hx, hy, trainer, 'whip');
 
-          // Animated arm & whip (wind-up -> crack -> follow-through)
-          if (phase < 3) {
-            px(hx + 7, hy + 12, 4, 5, sleeve);
-            px(hx + 9, hy + 8, 3, 4, '#fde68a');
-            px(hx + 10, hy + 4, 2, 4, '#78350f');
-            px(hx + 12, hy + 1, 3, 4, '#d97706');
-            px(hx + 15, hy + 3, 2, 4, '#f59e0b');
-          } else if (phase < 6) {
-            px(hx - 4, hy + 16, 7, 4, sleeve);
-            px(hx - 7, hy + 16, 4, 3, '#fde68a');
-            px(hx - 10, hy + 15, 3, 2, '#78350f');
-            px(hx - 13, hy + 16, 4, 1, '#b45309');
-            px(hx - 17, hy + 17, 5, 1, '#d97706');
-            px(hx - 21, hy + 18, 5, 1, '#f59e0b');
-            if (phase === 3 || phase === 4) {
-              px(54, 34, 2, 1, '#fef08a');
-              px(52, 36, 3, 2, '#ffffff');
-              px(55, 39, 2, 1, '#fb7185');
-              px(52, 33, 1, 1, '#fde047');
+          if (trainer === 'naruto') {
+            // Naruto charges and strikes with a glowing spinning Rasengan (no whip)
+            if (phase < 3) {
+              px(hx - 2, hy + 15, 5, 4, sleeve);
+              px(hx - 5, hy + 16, 3, 3, '#fde68a');
+              const rx = hx - 10;
+              const ry = hy + 14;
+              px(rx, ry + 1, 5, 3, '#0284c7');
+              px(rx + 1, ry, 3, 5, '#38bdf8');
+              px(rx + 1, ry + 1, 3, 3, '#bae6fd');
+              px(rx + 2, ry + 2, 1, 1, '#ffffff');
+              if (tick % 2 === 0) {
+                px(rx - 1, ry, 1, 1, '#7dd3fc');
+                px(rx + 5, ry + 4, 1, 1, '#ffffff');
+              } else {
+                px(rx + 5, ry, 1, 1, '#7dd3fc');
+                px(rx - 1, ry + 4, 1, 1, '#ffffff');
+              }
+            } else if (phase < 6) {
+              px(hx - 8, hy + 14, 10, 4, sleeve);
+              px(hx - 11, hy + 14, 3, 3, '#fde68a');
+              const rx = hx - 18;
+              const ry = hy + 12;
+              px(rx, ry + 1, 7, 5, '#0284c7');
+              px(rx + 1, ry, 5, 7, '#38bdf8');
+              px(rx + 2, ry + 1, 3, 5, '#7dd3fc');
+              px(rx + 1, ry + 2, 5, 3, '#e0f2fe');
+              px(rx + 2, ry + 2, 3, 3, '#ffffff');
+              if (phase === 3 || phase === 4) {
+                px(rx - 2, ry - 1, 2, 1, '#ffffff');
+                px(rx - 3, ry + 3, 2, 2, '#7dd3fc');
+                px(rx - 1, ry + 7, 2, 1, '#38bdf8');
+                px(rx + 5, ry - 2, 1, 2, '#bae6fd');
+                px(rx + 7, ry + 6, 2, 1, '#7dd3fc');
+              }
+            } else {
+              px(hx - 5, hy + 16, 7, 3, sleeve);
+              px(hx - 8, hy + 16, 3, 3, '#fde68a');
+              px(56, 31, 2, 2, '#7dd3fc');
+              px(60, 28, 1, 1, '#ffffff');
+              px(54, 37, 2, 1, '#38bdf8');
             }
           } else {
-            px(hx - 2, hy + 19, 5, 4, sleeve);
-            px(hx - 5, hy + 20, 3, 3, '#fde68a');
-            px(hx - 8, hy + 21, 3, 1, '#78350f');
-            px(hx - 12, hy + 22, 4, 1, '#b45309');
-            px(hx - 16, hy + 24, 4, 1, '#d97706');
+            // Animated arm & whip (wind-up -> crack -> follow-through)
+            if (phase < 3) {
+              px(hx + 7, hy + 12, 4, 5, sleeve);
+              px(hx + 9, hy + 8, 3, 4, '#fde68a');
+              px(hx + 10, hy + 4, 2, 4, '#78350f');
+              px(hx + 12, hy + 1, 3, 4, '#d97706');
+              px(hx + 15, hy + 3, 2, 4, '#f59e0b');
+            } else if (phase < 6) {
+              px(hx - 4, hy + 16, 7, 4, sleeve);
+              px(hx - 7, hy + 16, 4, 3, '#fde68a');
+              px(hx - 10, hy + 15, 3, 2, '#78350f');
+              px(hx - 13, hy + 16, 4, 1, '#b45309');
+              px(hx - 17, hy + 17, 5, 1, '#d97706');
+              px(hx - 21, hy + 18, 5, 1, '#f59e0b');
+              if (phase === 3 || phase === 4) {
+                px(54, 34, 2, 1, '#fef08a');
+                px(52, 36, 3, 2, '#ffffff');
+                px(55, 39, 2, 1, '#fb7185');
+                px(52, 33, 1, 1, '#fde047');
+              }
+            } else {
+              px(hx - 2, hy + 19, 5, 4, sleeve);
+              px(hx - 5, hy + 20, 3, 3, '#fde68a');
+              px(hx - 8, hy + 21, 3, 1, '#78350f');
+              px(hx - 12, hy + 22, 4, 1, '#b45309');
+              px(hx - 16, hy + 24, 4, 1, '#d97706');
+            }
           }
 
           // Startled ! above-left of buddy & sweat drop
@@ -901,6 +1762,16 @@ function getWebviewHtml(
           px(47, 16 - lift, 2, 2, '#fde047');
           px(63, 14 - ((lift + 3) % 6), 2, 2, '#34d399');
           px(55, 10 - ((lift + 1) % 6), 2, 2, '#f472b6');
+        } else if (state === 'idle' && currentChar === 'kyubi') {
+          // Kyubi gathering fiery red-orange chakra when idle
+          const lift = Math.floor(tick / 3) % 8;
+          const pulse = Math.floor(tick / 4) % 2;
+          px(47, 25 - lift, 2, 2, '#ef4444');
+          px(64, 23 - ((lift + 3) % 7), 2, 2, '#f97316');
+          px(55 + pulse, 19 - ((lift + 5) % 6), 2, 2, '#fbbf24');
+          px(51 - pulse, 21 - ((lift + 2) % 6), 1, 2, '#fef08a');
+          px(46, 36 - pulse, 2, 4, 'rgba(239,68,68,0.65)');
+          px(66, 35 + pulse, 2, 4, 'rgba(249,115,22,0.65)');
         }
       }
 
@@ -915,6 +1786,20 @@ function getWebviewHtml(
           drawBot(state, reacting);
         } else if (currentChar === 'dev') {
           drawDev(state, reacting);
+        } else if (currentChar === 'kyubi') {
+          drawKyubi(state, reacting);
+        } else if (currentChar === 'jokowi') {
+          drawJokowi(state, reacting);
+        } else if (currentChar === 'prabowo') {
+          drawPrabowo(state, reacting);
+        } else if (currentChar === 'trump') {
+          drawTrump(state, reacting);
+        } else if (currentChar === 'putin') {
+          drawPutin(state, reacting);
+        } else if (currentChar === 'kim') {
+          drawKim(state, reacting);
+        } else if (currentChar === 'fufufafa') {
+          drawFufufafa(state, reacting);
         } else {
           drawCat(state, reacting);
         }
@@ -960,6 +1845,16 @@ function getWebviewHtml(
         syncUiControls();
         vscode.postMessage({ type: 'setFloatingMode', mode: floatingMode });
       });
+
+      if (floatingScaleButtons) {
+        floatingScaleButtons.addEventListener('click', (event) => {
+          const btn = event.target.closest('button[data-float-scale]');
+          if (!btn) return;
+          floatingScale = Number(btn.dataset.floatScale);
+          syncUiControls();
+          vscode.postMessage({ type: 'setFloatingScale', scale: floatingScale });
+        });
+      }
 
       langButtons.addEventListener('click', (event) => {
         const btn = event.target.closest('button[data-lang]');
@@ -1015,6 +1910,9 @@ function getWebviewHtml(
           syncUiControls();
         } else if (msg.type === 'floatingModeUpdate' && msg.mode) {
           floatingMode = msg.mode;
+          syncUiControls();
+        } else if (msg.type === 'floatingScaleUpdate' && msg.scale) {
+          floatingScale = Number(msg.scale);
           syncUiControls();
         } else if (msg.type === 'languageUpdate' && msg.language) {
           currentLang = msg.language;

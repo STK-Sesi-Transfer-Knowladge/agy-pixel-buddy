@@ -65,7 +65,14 @@
           "enum": [
             "cat",
             "bot",
-            "dev"
+            "dev",
+            "kyubi",
+            "jokowi",
+            "prabowo",
+            "trump",
+            "putin",
+            "kim",
+            "fufufafa"
           ],
           "default": "cat",
           "description": "Active pixel character sprite."
@@ -90,6 +97,16 @@
           ],
           "default": "random",
           "description": "Floating buddy behavior inside the Antigravity IDE window: random (roam inside IDE), sticky (stay where placed in IDE), or hidden (disabled)."
+        },
+        "agyPixelBuddy.floatingScale": {
+          "type": "number",
+          "enum": [
+            2,
+            3,
+            4
+          ],
+          "default": 3,
+          "description": "Floating buddy pixel size multiplier (2x, 3x, or 4x)."
         },
         "agyPixelBuddy.language": {
           "type": "string",
@@ -119,10 +136,17 @@
           "enum": [
             "boss",
             "girl",
-            "sensei"
+            "sensei",
+            "naruto",
+            "jokowi",
+            "prabowo",
+            "trump",
+            "putin",
+            "kim",
+            "fufufafa"
           ],
           "default": "boss",
-          "description": "Human character who pets (cat) or whips (bot/dev) during reaction animations."
+          "description": "Human character who pets (cat) or whips/rasengan (bot/dev/kyubi) during reaction animations."
         }
       }
     }

@@ -34,8 +34,8 @@ DEFAULT_CONFIG_PATH = Path.home() / ".gemini" / "antigravity" / "buddy-floating-
 DEFAULT_LOCK_PATH = Path.home() / ".gemini" / "antigravity" / "buddy-floating.lock"
 DEFAULT_PID_PATH = Path.home() / ".gemini" / "antigravity" / "buddy-floating.pid"
 
-VALID_CHARS = ("cat", "bot", "dev")
-VALID_TRAINERS = ("boss", "girl", "sensei")
+VALID_CHARS = ("cat", "bot", "dev", "kyubi", "jokowi", "prabowo", "trump", "putin", "kim", "fufufafa")
+VALID_TRAINERS = ("boss", "girl", "sensei", "naruto", "jokowi", "prabowo", "trump", "putin", "kim", "fufufafa")
 VALID_MODES = ("random", "sticky")
 ALL_MODES = ("random", "sticky", "hidden")
 VALID_BUBBLE_MODES = ("auto", "always", "off")
@@ -88,10 +88,24 @@ UI_STRINGS = {
         "char_cat": "Cat",
         "char_bot": "Bot",
         "char_dev": "Dev",
+        "char_kyubi": "Kyubi",
+        "char_jokowi": "Father of Fufufafa",
+        "char_prabowo": "El Gemoy",
+        "char_trump": "Mr. Tariff",
+        "char_putin": "Mr. Long Table",
+        "char_kim": "Rocket Man",
+        "char_fufufafa": "Fufufafa",
         "trainer": "Caretaker / Whipper",
         "trainer_boss": "Boss",
         "trainer_girl": "Girl",
         "trainer_sensei": "Sensei",
+        "trainer_naruto": "Naruto",
+        "trainer_jokowi": "Father of Fufufafa",
+        "trainer_prabowo": "El Gemoy",
+        "trainer_trump": "Mr. Tariff",
+        "trainer_putin": "Mr. Long Table",
+        "trainer_kim": "Rocket Man",
+        "trainer_fufufafa": "Fufufafa",
         "movement": "Movement",
         "mode_random": "Random Move",
         "mode_sticky": "Sticky (Stay Here)",
@@ -115,10 +129,24 @@ UI_STRINGS = {
         "char_cat": "Kucing (Cat)",
         "char_bot": "Robot (Bot)",
         "char_dev": "Dev",
+        "char_kyubi": "Kyubi",
+        "char_jokowi": "Bapak Fufufafa",
+        "char_prabowo": "El Gemoy",
+        "char_trump": "Mr. Tariff",
+        "char_putin": "Bos Meja Panjang",
+        "char_kim": "Rocket Man",
+        "char_fufufafa": "Fufufafa",
         "trainer": "Pengasuh / Pencambuk",
         "trainer_boss": "Bos (Boss)",
         "trainer_girl": "Cewek (Girl)",
         "trainer_sensei": "Sensei",
+        "trainer_naruto": "Naruto",
+        "trainer_jokowi": "Bapak Fufufafa",
+        "trainer_prabowo": "El Gemoy",
+        "trainer_trump": "Mr. Tariff",
+        "trainer_putin": "Bos Meja Panjang",
+        "trainer_kim": "Rocket Man",
+        "trainer_fufufafa": "Fufufafa",
         "movement": "Mode Gerak",
         "mode_random": "Gerak Acak (Random)",
         "mode_sticky": "Sticky (Diam di Sini)",
@@ -1153,6 +1181,20 @@ def run_gui(args: argparse.Namespace) -> int:
                 self._draw_bot(px, st, reacting)
             elif char == "dev":
                 self._draw_dev(px, st, reacting)
+            elif char == "kyubi":
+                self._draw_kyubi(px, st, reacting)
+            elif char == "jokowi":
+                self._draw_jokowi(px, st, reacting)
+            elif char == "prabowo":
+                self._draw_prabowo(px, st, reacting)
+            elif char == "trump":
+                self._draw_trump(px, st, reacting)
+            elif char == "putin":
+                self._draw_putin(px, st, reacting)
+            elif char == "kim":
+                self._draw_kim(px, st, reacting)
+            elif char == "fufufafa":
+                self._draw_fufufafa(px, st, reacting)
             else:
                 self._draw_cat(px, st, reacting)
 
@@ -1439,11 +1481,421 @@ def run_gui(args: argparse.Namespace) -> int:
                 px(dx - 1, dy + 17 - l_up, 4, 3, "#fde68a")
                 px(dx + 5, dy + 18 - r_up, 4, 3, "#fde68a")
 
+        def _draw_kyubi(self, px: Any, st: str, reacting: bool = False) -> None:
+            phase = (26 - self.reaction_ticks_left) % 10
+            hit = reacting and phase in (4, 5, 6)
+            kx = 14 - (1 if hit else 0)
+            ky = 3 + (1 if hit else 0)
+            blink = st == "idle" and (self.tick % 46 > 42)
+            sway = (self.tick // (2 if reacting else 6)) % 2
+
+            # Swaying nine-tails fan behind Kyubi
+            px(kx + 12, ky + 15 - sway, 4, 2, "#c2410c")
+            px(kx + 15, ky + 13 - sway, 4, 2, "#ea580c")
+            px(kx + 18, ky + 12 - sway, 2, 2, "#fed7aa")
+
+            px(kx + 12, ky + 11 + sway, 5, 2, "#ea580c")
+            px(kx + 16, ky + 9 + sway, 4, 2, "#f97316")
+            px(kx + 19, ky + 8 + sway, 2, 2, "#fde68a")
+
+            px(kx + 11, ky + 7 - sway, 5, 2, "#f97316")
+            px(kx + 15, ky + 5 - sway, 3, 2, "#fb923c")
+            px(kx + 17, ky + 4 - sway, 2, 2, "#fed7aa")
+
+            px(kx + 11, ky + 18, 4, 2, "#9a3412")
+            px(kx + 14, ky + 17 + sway, 4, 2, "#ea580c")
+
+            # Body & chest fur
+            px(kx + 2, ky + 11, 11, 10, "#ea580c")
+            px(kx + 4, ky + 12, 7, 8, "#fdba74")
+            px(kx + 5, ky + 14, 5, 5, "#fed7aa")
+
+            # Tall pointed fox ears with dark tips
+            px(kx + 1, ky - 1, 3, 5, "#ea580c")
+            px(kx + 1, ky - 1, 2, 2, "#431407")
+            px(kx + 2, ky + 1, 1, 2, "#fdba74")
+
+            px(kx + 11, ky - 1, 3, 5, "#ea580c")
+            px(kx + 12, ky - 1, 2, 2, "#431407")
+            px(kx + 12, ky + 1, 1, 2, "#fdba74")
+
+            # Head & spiky cheek tufts
+            px(kx + 1, ky + 3, 13, 9, "#f97316")
+            px(kx, ky + 6, 1, 3, "#ea580c")
+            px(kx + 14, ky + 6, 1, 3, "#ea580c")
+            px(kx + 3, ky + 8, 9, 4, "#fed7aa")
+
+            # Dark eye markings
+            px(kx + 3, ky + 5, 3, 2, "#7c2d12")
+            px(kx + 9, ky + 5, 3, 2, "#7c2d12")
+
+            if reacting:
+                eye_c = "#fde047" if hit else "#ef4444"
+                px(kx + 3, ky + 5, 1, 1, eye_c)
+                px(kx + 4, ky + 6, 1, 1, eye_c)
+                px(kx + 3, ky + 7, 1, 1, eye_c)
+                px(kx + 11, ky + 5, 1, 1, eye_c)
+                px(kx + 10, ky + 6, 1, 1, eye_c)
+                px(kx + 11, ky + 7, 1, 1, eye_c)
+                px(kx + 6, ky + 10, 3, 1, "#7c2d12")
+            elif blink or st == "done":
+                px(kx + 4, ky + 6, 2, 1, "#dc2626")
+                px(kx + 9, ky + 6, 2, 1, "#dc2626")
+            else:
+                shift = -1 if (st == "reading" and (self.tick // 6) % 2 == 0) else 0
+                px(kx + 4 + shift, ky + 5, 2, 2, "#dc2626")
+                px(kx + 9 + shift, ky + 5, 2, 2, "#dc2626")
+                px(kx + 4 + shift, ky + 5, 1, 2, "#0f172a")
+                px(kx + 10 + shift, ky + 5, 1, 2, "#0f172a")
+
+            # Nose & fangs
+            px(kx + 7, ky + 8, 1, 1, "#1e293b")
+            px(kx + 5, ky + 10, 1, 1, "#ffffff")
+            px(kx + 9, ky + 10, 1, 1, "#ffffff")
+
+            fast_type = st in ("coding", "terminal")
+            l_up = 4 if reacting else (2 if (fast_type and self.tick % 4 < 2) else 0)
+            r_up = 4 if reacting else (2 if (fast_type and self.tick % 4 >= 2) else 0)
+            if st == "thinking" and not reacting:
+                px(kx + 1, ky + 11, 3, 3, "#fed7aa")
+                px(kx + 10, ky + 17, 3, 3, "#fed7aa")
+            else:
+                px(kx - 1, ky + 17 - l_up, 4, 3, "#fed7aa")
+                px(kx + 5, ky + 18 - r_up, 4, 3, "#fed7aa")
+
+        def _draw_jokowi(self, px: Any, st: str, reacting: bool = False) -> None:
+            phase = (26 - self.reaction_ticks_left) % 10
+            hit = reacting and phase in (4, 5, 6)
+            jx = 14 - (1 if hit else 0)
+            jy = 3 + (1 if hit else 0)
+            blink = st == "idle" and (self.tick % 46 > 42)
+
+            # Sleek side-parted black hair with higher forehead
+            px(jx + 4, jy, 7, 2, "#0f172a")
+            px(jx + 3, jy + 1, 9, 2, "#1e293b")
+            px(jx + 5, jy + 1, 2, 1, "#475569")
+            px(jx + 3, jy + 3, 1, 3, "#0f172a")
+            px(jx + 11, jy + 3, 1, 3, "#0f172a")
+
+            # Slimmer oval face with warm tan skin & cheekbones
+            px(jx + 4, jy + 3, 7, 8, "#dfa670")
+            px(jx + 3, jy + 5, 9, 4, "#dfa670")
+            px(jx + 5, jy + 11, 5, 1, "#c98a55")
+            px(jx + 3, jy + 7, 1, 2, "#c98a55")
+            px(jx + 11, jy + 7, 1, 2, "#c98a55")
+
+            # Subtle eyebrows & nose bridge
+            px(jx + 4, jy + 5, 2, 1, "#1e293b")
+            px(jx + 9, jy + 5, 2, 1, "#1e293b")
+            px(jx + 7, jy + 7, 1, 2, "#c98a55")
+
+            if reacting:
+                px(jx + 4, jy + 6, 2, 2, "#0f172a")
+                px(jx + 9, jy + 6, 2, 2, "#0f172a")
+                px(jx + 4, jy + 6, 1, 1, "#ffffff")
+                px(jx + 9, jy + 6, 1, 1, "#ffffff")
+                px(jx + 6, jy + 10, 3, 1, "#7c2d12")
+            elif blink or st == "idle":
+                px(jx + 4, jy + 7, 2, 1, "#1e293b")
+                px(jx + 9, jy + 7, 2, 1, "#1e293b")
+                px(jx + 6, jy + 10, 3, 1, "#ffffff")
+            else:
+                shift = -1 if (st == "reading" and (self.tick // 6) % 2 == 0) else 0
+                px(jx + 4 + shift, jy + 6, 2, 2, "#0f172a")
+                px(jx + 9 + shift, jy + 6, 2, 2, "#0f172a")
+                px(jx + 6, jy + 10, 3, 1, "#ffffff")
+
+            # Slimmer white shirt with collar, chest pocket, rolled sleeves & black belt
+            px(jx + 2, jy + 12, 11, 8, "#f8fafc")
+            px(jx + 4, jy + 12, 7, 2, "#e2e8f0")
+            px(jx + 7, jy + 14, 1, 6, "#cbd5e1")
+            px(jx + 9, jy + 15, 3, 2, "#e2e8f0")
+            px(jx + 1, jy + 13, 2, 3, "#e2e8f0")
+            px(jx + 12, jy + 13, 2, 3, "#e2e8f0")
+            px(jx + 1, jy + 16, 2, 2, "#dfa670")
+            px(jx + 12, jy + 16, 2, 2, "#dfa670")
+            px(jx + 2, jy + 20, 11, 2, "#0f172a")
+
+            fast_type = st in ("coding", "terminal")
+            l_up = 4 if reacting else (2 if (fast_type and self.tick % 4 < 2) else 0)
+            r_up = 4 if reacting else (2 if (fast_type and self.tick % 4 >= 2) else 0)
+            if st == "thinking" and not reacting:
+                px(jx + 1, jy + 12, 3, 3, "#dfa670")
+                px(jx + 10, jy + 18, 3, 3, "#dfa670")
+            else:
+                px(jx - 1, jy + 18 - l_up, 4, 3, "#dfa670")
+                px(jx + 5, jy + 19 - r_up, 4, 3, "#dfa670")
+
+        def _draw_prabowo(self, px: Any, st: str, reacting: bool = False) -> None:
+            phase = (26 - self.reaction_ticks_left) % 10
+            hit = reacting and phase in (4, 5, 6)
+            px0 = 14 - (1 if hit else 0)
+            py0 = 3 + (1 if hit else 0)
+            blink = st == "idle" and (self.tick % 46 > 42)
+
+            # Iconic black Peci cap + dark hair sides
+            px(px0 + 3, py0, 9, 4, "#0f172a")
+            px(px0 + 4, py0, 7, 1, "#1e293b")
+            px(px0 + 2, py0 + 4, 1, 3, "#334155")
+            px(px0 + 12, py0 + 4, 1, 3, "#334155")
+
+            # Face & thick eyebrows
+            px(px0 + 3, py0 + 4, 9, 8, "#f3c99b")
+            px(px0 + 4, py0 + 5, 2, 1, "#1e293b")
+            px(px0 + 9, py0 + 5, 2, 1, "#1e293b")
+
+            if reacting:
+                px(px0 + 4, py0 + 6, 2, 2, "#0f172a")
+                px(px0 + 9, py0 + 6, 2, 2, "#0f172a")
+                px(px0 + 4, py0 + 6, 1, 1, "#ffffff")
+                px(px0 + 9, py0 + 6, 1, 1, "#ffffff")
+                px(px0 + 6, py0 + 10, 3, 1, "#9a3412")
+            elif blink:
+                px(px0 + 4, py0 + 7, 2, 1, "#1e293b")
+                px(px0 + 9, py0 + 7, 2, 1, "#1e293b")
+            else:
+                shift = -1 if (st == "reading" and (self.tick // 6) % 2 == 0) else 0
+                px(px0 + 4 + shift, py0 + 6, 2, 2, "#0f172a")
+                px(px0 + 9 + shift, py0 + 6, 2, 2, "#0f172a")
+                px(px0 + 6, py0 + 10, 3, 1, "#9a3412")
+
+            # Cream/khaki safari shirt with chest pockets
+            px(px0 + 1, py0 + 12, 13, 10, "#e5d5b5")
+            px(px0 + 4, py0 + 12, 7, 2, "#f5efe2")
+            px(px0 + 2, py0 + 15, 3, 3, "#c7b28a")
+            px(px0 + 10, py0 + 15, 3, 3, "#c7b28a")
+            px(px0 + 7, py0 + 14, 1, 6, "#b8a074")
+
+            fast_type = st in ("coding", "terminal")
+            l_up = 4 if reacting else (2 if (fast_type and self.tick % 4 < 2) else 0)
+            r_up = 4 if reacting else (2 if (fast_type and self.tick % 4 >= 2) else 0)
+            if st == "thinking" and not reacting:
+                px(px0 + 1, py0 + 12, 3, 3, "#f3c99b")
+                px(px0 + 10, py0 + 18, 3, 3, "#f3c99b")
+            else:
+                px(px0 - 1, py0 + 18 - l_up, 4, 3, "#f3c99b")
+                px(px0 + 5, py0 + 19 - r_up, 4, 3, "#f3c99b")
+
+        def _draw_trump(self, px: Any, st: str, reacting: bool = False) -> None:
+            phase = (26 - self.reaction_ticks_left) % 10
+            hit = reacting and phase in (4, 5, 6)
+            tx = 14 - (1 if hit else 0)
+            ty = 3 + (1 if hit else 0)
+            blink = st == "idle" and (self.tick % 46 > 42)
+
+            # Swooped golden-blonde comb-over hair
+            px(tx + 2, ty - 1, 10, 3, "#facc15")
+            px(tx + 1, ty, 5, 2, "#fde047")
+            px(tx + 11, ty + 1, 2, 3, "#eab308")
+            px(tx + 2, ty + 2, 10, 2, "#eab308")
+
+            # Orange-tan face with pale eye area
+            px(tx + 3, ty + 4, 9, 8, "#fb923c")
+            px(tx + 4, ty + 5, 3, 2, "#fdba74")
+            px(tx + 8, ty + 5, 3, 2, "#fdba74")
+            px(tx + 4, ty + 5, 2, 1, "#eab308")
+            px(tx + 9, ty + 5, 2, 1, "#eab308")
+
+            if reacting:
+                px(tx + 4, ty + 6, 2, 2, "#0f172a")
+                px(tx + 9, ty + 6, 2, 2, "#0f172a")
+                px(tx + 4, ty + 6, 1, 1, "#ffffff")
+                px(tx + 9, ty + 6, 1, 1, "#ffffff")
+                px(tx + 6, ty + 10, 3, 1, "#9a3412")
+            elif blink:
+                px(tx + 4, ty + 7, 2, 1, "#1e293b")
+                px(tx + 9, ty + 7, 2, 1, "#1e293b")
+            else:
+                shift = -1 if (st == "reading" and (self.tick // 6) % 2 == 0) else 0
+                px(tx + 4 + shift, ty + 6, 2, 2, "#0f172a")
+                px(tx + 9 + shift, ty + 6, 2, 2, "#0f172a")
+                px(tx + 6, ty + 10, 3, 1, "#c2410c")
+
+            # Navy suit, white collar & long red tie
+            px(tx + 1, ty + 12, 13, 10, "#1e293b")
+            px(tx + 5, ty + 12, 5, 3, "#f8fafc")
+            px(tx + 6, ty + 13, 3, 2, "#dc2626")
+            px(tx + 7, ty + 15, 1, 7, "#ef4444")
+
+            fast_type = st in ("coding", "terminal")
+            l_up = 4 if reacting else (2 if (fast_type and self.tick % 4 < 2) else 0)
+            r_up = 4 if reacting else (2 if (fast_type and self.tick % 4 >= 2) else 0)
+            if st == "thinking" and not reacting:
+                px(tx + 1, ty + 12, 3, 3, "#fdba74")
+                px(tx + 10, ty + 18, 3, 3, "#fdba74")
+            else:
+                px(tx - 1, ty + 18 - l_up, 4, 3, "#fdba74")
+                px(tx + 5, ty + 19 - r_up, 4, 3, "#fdba74")
+
+        def _draw_putin(self, px: Any, st: str, reacting: bool = False) -> None:
+            phase = (26 - self.reaction_ticks_left) % 10
+            hit = reacting and phase in (4, 5, 6)
+            ux = 14 - (1 if hit else 0)
+            uy = 3 + (1 if hit else 0)
+            blink = st == "idle" and (self.tick % 46 > 42)
+
+            # High receding hairline with thin ash-blonde hair on sides
+            px(ux + 4, uy + 1, 7, 1, "#cbd5e1")
+            px(ux + 3, uy + 2, 2, 3, "#94a3b8")
+            px(ux + 10, uy + 2, 2, 3, "#94a3b8")
+
+            # Fair cool face
+            px(ux + 3, uy + 2, 9, 10, "#fde68a")
+            px(ux + 4, uy + 1, 7, 1, "#fde68a")
+            px(ux + 4, uy + 5, 2, 1, "#94a3b8")
+            px(ux + 9, uy + 5, 2, 1, "#94a3b8")
+
+            if reacting:
+                px(ux + 4, uy + 6, 2, 2, "#0f172a")
+                px(ux + 9, uy + 6, 2, 2, "#0f172a")
+                px(ux + 4, uy + 6, 1, 1, "#ffffff")
+                px(ux + 9, uy + 6, 1, 1, "#ffffff")
+                px(ux + 6, uy + 10, 3, 1, "#b45309")
+            elif blink:
+                px(ux + 4, uy + 7, 2, 1, "#1e293b")
+                px(ux + 9, uy + 7, 2, 1, "#1e293b")
+            else:
+                shift = -1 if (st == "reading" and (self.tick // 6) % 2 == 0) else 0
+                px(ux + 4 + shift, uy + 6, 2, 1, "#0f172a")
+                px(ux + 9 + shift, uy + 6, 2, 1, "#0f172a")
+                px(ux + 6, uy + 10, 3, 1, "#b45309")
+
+            # Dark charcoal suit, white shirt & burgundy tie
+            px(ux + 1, uy + 12, 13, 10, "#0f172a")
+            px(ux + 5, uy + 12, 5, 3, "#f8fafc")
+            px(ux + 7, uy + 13, 1, 6, "#991b1b")
+
+            fast_type = st in ("coding", "terminal")
+            l_up = 4 if reacting else (2 if (fast_type and self.tick % 4 < 2) else 0)
+            r_up = 4 if reacting else (2 if (fast_type and self.tick % 4 >= 2) else 0)
+            if st == "thinking" and not reacting:
+                px(ux + 1, uy + 12, 3, 3, "#fde68a")
+                px(ux + 10, uy + 18, 3, 3, "#fde68a")
+            else:
+                px(ux - 1, uy + 18 - l_up, 4, 3, "#fde68a")
+                px(ux + 5, uy + 19 - r_up, 4, 3, "#fde68a")
+
+        def _draw_kim(self, px: Any, st: str, reacting: bool = False) -> None:
+            phase = (26 - self.reaction_ticks_left) % 10
+            hit = reacting and phase in (4, 5, 6)
+            mx = 14 - (1 if hit else 0)
+            my = 3 + (1 if hit else 0)
+            blink = st == "idle" and (self.tick % 46 > 42)
+
+            # Iconic flat-top trapezoid black hair with shaved sides
+            px(mx + 3, my - 1, 9, 4, "#0f172a")
+            px(mx + 2, my, 1, 2, "#1e293b")
+            px(mx + 12, my, 1, 2, "#1e293b")
+
+            # Rounder face & cheeks
+            px(mx + 2, my + 3, 11, 9, "#f5cfa0")
+            px(mx + 3, my + 11, 9, 1, "#e5b887")
+
+            if reacting:
+                px(mx + 4, my + 6, 2, 2, "#0f172a")
+                px(mx + 9, my + 6, 2, 2, "#0f172a")
+                px(mx + 4, my + 6, 1, 1, "#ffffff")
+                px(mx + 9, my + 6, 1, 1, "#ffffff")
+                px(mx + 6, my + 10, 3, 1, "#9a3412")
+            elif blink:
+                px(mx + 4, my + 7, 2, 1, "#1e293b")
+                px(mx + 9, my + 7, 2, 1, "#1e293b")
+            else:
+                shift = -1 if (st == "reading" and (self.tick // 6) % 2 == 0) else 0
+                px(mx + 4 + shift, my + 6, 2, 2, "#0f172a")
+                px(mx + 9 + shift, my + 6, 2, 2, "#0f172a")
+                px(mx + 6, my + 10, 3, 1, "#b45309")
+
+            # Dark charcoal Mao suit
+            px(mx + 1, my + 12, 13, 10, "#1e293b")
+            px(mx + 4, my + 12, 7, 2, "#334155")
+            px(mx + 7, my + 14, 1, 6, "#0f172a")
+
+            fast_type = st in ("coding", "terminal")
+            l_up = 4 if reacting else (2 if (fast_type and self.tick % 4 < 2) else 0)
+            r_up = 4 if reacting else (2 if (fast_type and self.tick % 4 >= 2) else 0)
+            if st == "thinking" and not reacting:
+                px(mx + 1, my + 12, 3, 3, "#f5cfa0")
+                px(mx + 10, my + 18, 3, 3, "#f5cfa0")
+            else:
+                px(mx - 1, my + 18 - l_up, 4, 3, "#f5cfa0")
+                px(mx + 5, my + 19 - r_up, 4, 3, "#f5cfa0")
+
+        def _draw_fufufafa(self, px: Any, st: str, reacting: bool = False) -> None:
+            phase = (26 - self.reaction_ticks_left) % 10
+            hit = reacting and phase in (4, 5, 6)
+            fx = 14 - (1 if hit else 0)
+            fy = 3 + (1 if hit else 0)
+            blink = st == "idle" and (self.tick % 46 > 42)
+
+            # Short neat swept black hair
+            px(fx + 3, fy, 9, 4, "#0f172a")
+            px(fx + 4, fy, 6, 1, "#1e293b")
+            px(fx + 11, fy + 2, 1, 4, "#1e293b")
+
+            # Face & serious focused expression
+            px(fx + 3, fy + 4, 9, 8, "#f0c495")
+            px(fx + 4, fy + 5, 2, 1, "#1e293b")
+            px(fx + 9, fy + 5, 2, 1, "#1e293b")
+
+            if reacting:
+                px(fx + 4, fy + 6, 2, 2, "#0f172a")
+                px(fx + 9, fy + 6, 2, 2, "#0f172a")
+                px(fx + 4, fy + 6, 1, 1, "#ffffff")
+                px(fx + 9, fy + 6, 1, 1, "#ffffff")
+                px(fx + 6, fy + 10, 3, 1, "#9a3412")
+            elif blink:
+                px(fx + 4, fy + 7, 2, 1, "#1e293b")
+                px(fx + 9, fy + 7, 2, 1, "#1e293b")
+                px(fx + 6, fy + 10, 3, 1, "#9a3412")
+            else:
+                px(fx + 3, fy + 6, 2, 2, "#0f172a")
+                px(fx + 8, fy + 6, 2, 2, "#0f172a")
+                px(fx + 6, fy + 10, 3, 1, "#9a3412")
+
+            # Light-blue & dark-slate zip-up jacket with white stand-up collar + orange swirl emblem
+            px(fx + 1, fy + 12, 13, 4, "#475569")
+            px(fx + 1, fy + 16, 13, 6, "#7dd3fc")
+            px(fx + 4, fy + 11, 7, 3, "#f8fafc")
+            px(fx + 7, fy + 14, 1, 8, "#e2e8f0")
+            px(fx + 4, fy + 17, 3, 3, "#f97316")
+            px(fx + 5, fy + 18, 1, 1, "#7c2d12")
+
+            fast_type = st in ("coding", "terminal")
+            l_up = 4 if reacting else (2 if (fast_type and self.tick % 4 < 2) else 0)
+            r_up = 4 if reacting else (2 if (fast_type and self.tick % 4 >= 2) else 0)
+            if st in ("idle", "thinking") and not reacting:
+                px(fx - 2, fy + 8, 3, 7, "#7dd3fc")
+                px(fx - 1, fy + 5, 4, 3, "#f0c495")
+                px(fx + 10, fy + 18, 3, 3, "#f0c495")
+            else:
+                px(fx - 1, fy + 18 - l_up, 4, 3, "#f0c495")
+                px(fx + 5, fy + 19 - r_up, 4, 3, "#f0c495")
+
         def _draw_human_actor(self, px: Any, hx: int, hy: int, trainer: str, mood: str) -> str:
-            sleeve = "#f43f5e" if trainer == "girl" else "#0f766e" if trainer == "sensei" else "#334155"
+            sleeve_map = {
+                "girl": "#f43f5e",
+                "sensei": "#0f766e",
+                "naruto": "#f97316",
+                "jokowi": "#f8fafc",
+                "prabowo": "#e5d5b5",
+                "trump": "#1e293b",
+                "putin": "#0f172a",
+                "kim": "#1e293b",
+                "fufufafa": "#7dd3fc",
+            }
+            skin_map = {
+                "jokowi": "#dfa670",
+                "prabowo": "#f3c99b",
+                "trump": "#fb923c",
+                "kim": "#f5cfa0",
+                "fufufafa": "#f0c495",
+            }
+            sleeve = sleeve_map.get(trainer, "#334155")
+            skin = skin_map.get(trainer, "#fde68a")
 
             # Head & face (facing left, larger proportions)
-            px(hx + 2, hy + 4, 8, 6, "#fde68a")
+            px(hx + 2, hy + 4, 8, 6, skin)
 
             if trainer == "girl":
                 px(hx + 2, hy + 1, 9, 3, "#92400e")
@@ -1457,13 +1909,44 @@ def run_gui(args: argparse.Namespace) -> int:
                 px(hx + 1, hy + 3, 10, 1, "#7c3aed")
                 px(hx + 11, hy + 3, 2, 3, "#a855f7")
                 px(hx + 9, hy + 4, 3, 4, "#cbd5e1")
+            elif trainer == "naruto":
+                px(hx + 1, hy, 3, 3, "#facc15")
+                px(hx + 4, hy - 1, 4, 4, "#fde047")
+                px(hx + 8, hy, 4, 3, "#eab308")
+                px(hx + 2, hy + 2, 9, 2, "#facc15")
+                px(hx + 10, hy + 2, 2, 4, "#eab308")
+                px(hx + 1, hy + 3, 10, 2, "#1e293b")
+                px(hx + 3, hy + 3, 4, 2, "#cbd5e1")
+                px(hx + 11, hy + 3, 2, 2, "#1e293b")
+            elif trainer == "jokowi":
+                px(hx + 3, hy + 1, 8, 3, "#0f172a")
+                px(hx + 4, hy + 1, 3, 1, "#475569")
+                px(hx + 9, hy + 3, 2, 4, "#1e293b")
+            elif trainer == "prabowo":
+                px(hx + 2, hy, 9, 4, "#0f172a")
+                px(hx + 3, hy, 6, 1, "#1e293b")
+                px(hx + 9, hy + 4, 2, 3, "#334155")
+            elif trainer == "trump":
+                px(hx + 1, hy, 10, 3, "#facc15")
+                px(hx, hy + 1, 4, 2, "#fde047")
+                px(hx + 9, hy + 2, 2, 3, "#eab308")
+            elif trainer == "putin":
+                px(hx + 4, hy + 1, 6, 2, "#cbd5e1")
+                px(hx + 9, hy + 3, 2, 4, "#94a3b8")
+            elif trainer == "kim":
+                px(hx + 2, hy, 9, 4, "#0f172a")
+                px(hx + 9, hy + 1, 2, 2, "#1e293b")
+            elif trainer == "fufufafa":
+                px(hx + 2, hy, 9, 4, "#0f172a")
+                px(hx + 3, hy, 5, 1, "#1e293b")
+                px(hx + 9, hy + 3, 2, 4, "#1e293b")
             else:
                 px(hx + 2, hy, 9, 4, "#dc2626")
                 px(hx + 3, hy, 6, 1, "#ef4444")
                 px(hx - 1, hy + 3, 5, 1, "#991b1b")
                 px(hx + 9, hy + 4, 3, 4, "#1e293b")
 
-            # Expression: warm/gentle while petting vs fierce focus while whipping
+            # Expression: warm/gentle while petting vs fierce focus while attacking
             if trainer == "sensei":
                 px(hx + 2, hy + 5, 5, 2, "#0f172a")
                 px(hx + 3, hy + 5, 2, 1, "#38bdf8")
@@ -1474,11 +1957,20 @@ def run_gui(args: argparse.Namespace) -> int:
                 px(hx + 4, hy + 5, 1, 1, "#0f172a")
                 px(hx + 2, hy + 8, 2, 1, "#fda4af")
                 px(hx + 3, hy + 9, 3, 1, "#b45309")
+            elif trainer == "naruto":
+                px(hx + 3, hy + 5, 3, 1, "#b45309")
+                px(hx + 4, hy + 6, 2, 2, "#0284c7")
+                px(hx + 4, hy + 6, 1, 1, "#7dd3fc")
+                px(hx + 3, hy + 9, 2, 1, "#b45309")
             else:
-                px(hx + 3, hy + 5, 3, 1, "#1e293b")
+                px(hx + 3, hy + 5, 3, 1, "#eab308" if trainer == "trump" else "#1e293b")
                 px(hx + 4, hy + 6, 2, 2, "#0f172a")
                 px(hx + 4, hy + 6, 1, 1, "#ffffff")
-                px(hx + 3, hy + 9, 2, 1, "#b45309")
+                px(hx + 3, hy + 9, 2, 1, "#ffffff" if trainer == "jokowi" else "#b45309")
+
+            if trainer == "naruto":
+                px(hx + 6, hy + 7, 2, 1, "#d97706")
+                px(hx + 6, hy + 9, 2, 1, "#d97706")
 
             # Torso, outfit details, legs & shoes (standing down to y = 25)
             px(hx + 1, hy + 10, 11, 8, sleeve)
@@ -1497,6 +1989,58 @@ def run_gui(args: argparse.Namespace) -> int:
                 px(hx + 7, hy + 18, 5, 5, "#134e4a")
                 px(hx + 1, hy + 23, 4, 2, "#78350f")
                 px(hx + 7, hy + 23, 4, 2, "#78350f")
+            elif trainer == "naruto":
+                px(hx + 1, hy + 10, 11, 3, "#1e293b")
+                px(hx + 3, hy + 10, 2, 7, "#f8fafc")
+                px(hx + 1, hy + 17, 11, 1, "#1e293b")
+                px(hx + 2, hy + 18, 4, 5, "#ea580c")
+                px(hx + 7, hy + 18, 4, 5, "#ea580c")
+                px(hx + 1, hy + 23, 5, 2, "#0f172a")
+                px(hx + 7, hy + 23, 5, 2, "#0f172a")
+            elif trainer == "jokowi":
+                px(hx + 2, hy + 10, 3, 2, "#e2e8f0")
+                px(hx + 3, hy + 12, 1, 5, "#cbd5e1")
+                px(hx + 2, hy + 18, 4, 5, "#0f172a")
+                px(hx + 7, hy + 18, 4, 5, "#0f172a")
+                px(hx + 1, hy + 23, 5, 2, "#0f172a")
+                px(hx + 7, hy + 23, 5, 2, "#0f172a")
+            elif trainer == "prabowo":
+                px(hx + 2, hy + 10, 3, 2, "#f5efe2")
+                px(hx + 2, hy + 13, 3, 3, "#c7b28a")
+                px(hx + 2, hy + 18, 4, 5, "#c7b28a")
+                px(hx + 7, hy + 18, 4, 5, "#c7b28a")
+                px(hx + 1, hy + 23, 5, 2, "#0f172a")
+                px(hx + 7, hy + 23, 5, 2, "#0f172a")
+            elif trainer == "trump":
+                px(hx + 2, hy + 10, 3, 5, "#f8fafc")
+                px(hx + 2, hy + 12, 1, 6, "#dc2626")
+                px(hx + 2, hy + 18, 4, 5, "#1e293b")
+                px(hx + 7, hy + 18, 4, 5, "#1e293b")
+                px(hx + 1, hy + 23, 5, 2, "#0f172a")
+                px(hx + 7, hy + 23, 5, 2, "#0f172a")
+            elif trainer == "putin":
+                px(hx + 2, hy + 10, 3, 5, "#f8fafc")
+                px(hx + 2, hy + 12, 1, 5, "#991b1b")
+                px(hx + 2, hy + 18, 4, 5, "#0f172a")
+                px(hx + 7, hy + 18, 4, 5, "#0f172a")
+                px(hx + 1, hy + 23, 5, 2, "#0f172a")
+                px(hx + 7, hy + 23, 5, 2, "#0f172a")
+            elif trainer == "kim":
+                px(hx + 2, hy + 10, 3, 2, "#334155")
+                px(hx + 3, hy + 12, 1, 5, "#0f172a")
+                px(hx + 2, hy + 18, 4, 5, "#1e293b")
+                px(hx + 7, hy + 18, 4, 5, "#1e293b")
+                px(hx + 1, hy + 23, 5, 2, "#0f172a")
+                px(hx + 7, hy + 23, 5, 2, "#0f172a")
+            elif trainer == "fufufafa":
+                px(hx + 1, hy + 10, 11, 4, "#475569")
+                px(hx + 2, hy + 9, 4, 3, "#f8fafc")
+                px(hx + 4, hy + 12, 1, 6, "#e2e8f0")
+                px(hx + 2, hy + 14, 2, 2, "#f97316")
+                px(hx + 2, hy + 18, 4, 5, "#0f172a")
+                px(hx + 7, hy + 18, 4, 5, "#0f172a")
+                px(hx + 1, hy + 23, 5, 2, "#0f172a")
+                px(hx + 7, hy + 23, 5, 2, "#0f172a")
             else:
                 px(hx + 2, hy + 10, 3, 5, "#f8fafc")
                 px(hx + 2, hy + 12, 1, 4, "#ef4444")
@@ -1528,36 +2072,73 @@ def run_gui(args: argparse.Namespace) -> int:
                     px(offset_x, offset_y + 1, 3, 1, col)
                     px(offset_x + 1, offset_y + 2, 1, 1, col)
             else:
-                # Larger selected human character standing on the right cracking a whip left onto the buddy
+                # Larger selected human character standing on the right
                 phase = (26 - self.reaction_ticks_left) % 10
                 hx, hy = 35, 1
                 sleeve = self._draw_human_actor(px, hx, hy, trainer, "whip")
 
-                # Animated arm & whip (wind-up -> crack -> follow-through)
-                if phase < 3:
-                    px(hx + 6, hy + 8, 3, 4, sleeve)
-                    px(hx + 8, hy + 6, 2, 2, "#fde68a")
-                    px(hx + 9, hy + 3, 2, 3, "#78350f")
-                    px(hx + 11, hy + 1, 2, 3, "#d97706")
-                    px(hx + 13, hy + 2, 2, 3, "#f59e0b")
-                elif phase < 7:
-                    px(hx - 2, hy + 11, 5, 3, sleeve)
-                    px(hx - 4, hy + 11, 3, 2, "#fde68a")
-                    px(hx - 6, hy + 10, 2, 1, "#78350f")
-                    px(hx - 8, hy + 11, 3, 1, "#b45309")
-                    px(hx - 10, hy + 12, 3, 1, "#d97706")
-                    px(hx - 12, hy + 13, 3, 1, "#f59e0b")
-                    if phase in (4, 5):
-                        px(23, 12, 1, 1, "#fef08a")
-                        px(22, 14, 2, 2, "#ffffff")
-                        px(24, 16, 1, 1, "#fb7185")
-                        px(21, 12, 1, 1, "#fde047")
+                if trainer == "naruto":
+                    # Naruto charges and strikes with a glowing spinning Rasengan (no whip)
+                    if phase < 3:
+                        px(hx - 2, hy + 11, 4, 3, sleeve)
+                        px(hx - 4, hy + 12, 2, 2, "#fde68a")
+                        rx, ry = hx - 9, hy + 10
+                        px(rx, ry + 1, 5, 3, "#0284c7")
+                        px(rx + 1, ry, 3, 5, "#38bdf8")
+                        px(rx + 1, ry + 1, 3, 3, "#bae6fd")
+                        px(rx + 2, ry + 2, 1, 1, "#ffffff")
+                        if self.tick % 2 == 0:
+                            px(rx - 1, ry, 1, 1, "#7dd3fc")
+                            px(rx + 5, ry + 4, 1, 1, "#ffffff")
+                        else:
+                            px(rx + 5, ry, 1, 1, "#7dd3fc")
+                            px(rx - 1, ry + 4, 1, 1, "#ffffff")
+                    elif phase < 7:
+                        px(hx - 6, hy + 11, 8, 3, sleeve)
+                        px(hx - 8, hy + 11, 2, 2, "#fde68a")
+                        rx, ry = hx - 14, hy + 9
+                        px(rx, ry + 1, 6, 4, "#0284c7")
+                        px(rx + 1, ry, 4, 6, "#38bdf8")
+                        px(rx + 1, ry + 1, 4, 4, "#7dd3fc")
+                        px(rx + 2, ry + 1, 2, 4, "#e0f2fe")
+                        px(rx + 2, ry + 2, 2, 2, "#ffffff")
+                        if phase in (4, 5):
+                            px(rx - 2, ry, 1, 1, "#ffffff")
+                            px(rx - 2, ry + 3, 2, 1, "#7dd3fc")
+                            px(rx + 1, ry - 1, 1, 1, "#bae6fd")
+                            px(rx + 5, ry + 5, 1, 1, "#38bdf8")
+                    else:
+                        px(hx - 4, hy + 13, 6, 3, sleeve)
+                        px(hx - 6, hy + 13, 2, 2, "#fde68a")
+                        px(24, 11, 2, 2, "#7dd3fc")
+                        px(27, 9, 1, 1, "#ffffff")
+                        px(22, 15, 2, 1, "#38bdf8")
                 else:
-                    px(hx - 1, hy + 13, 4, 3, sleeve)
-                    px(hx - 3, hy + 14, 2, 2, "#fde68a")
-                    px(hx - 5, hy + 15, 2, 1, "#78350f")
-                    px(hx - 8, hy + 16, 3, 1, "#b45309")
-                    px(hx - 10, hy + 18, 3, 1, "#d97706")
+                    # Animated arm & whip (wind-up -> crack -> follow-through)
+                    if phase < 3:
+                        px(hx + 6, hy + 8, 3, 4, sleeve)
+                        px(hx + 8, hy + 6, 2, 2, "#fde68a")
+                        px(hx + 9, hy + 3, 2, 3, "#78350f")
+                        px(hx + 11, hy + 1, 2, 3, "#d97706")
+                        px(hx + 13, hy + 2, 2, 3, "#f59e0b")
+                    elif phase < 7:
+                        px(hx - 2, hy + 11, 5, 3, sleeve)
+                        px(hx - 4, hy + 11, 3, 2, "#fde68a")
+                        px(hx - 6, hy + 10, 2, 1, "#78350f")
+                        px(hx - 8, hy + 11, 3, 1, "#b45309")
+                        px(hx - 10, hy + 12, 3, 1, "#d97706")
+                        px(hx - 12, hy + 13, 3, 1, "#f59e0b")
+                        if phase in (4, 5):
+                            px(23, 12, 1, 1, "#fef08a")
+                            px(22, 14, 2, 2, "#ffffff")
+                            px(24, 16, 1, 1, "#fb7185")
+                            px(21, 12, 1, 1, "#fde047")
+                    else:
+                        px(hx - 1, hy + 13, 4, 3, sleeve)
+                        px(hx - 3, hy + 14, 2, 2, "#fde68a")
+                        px(hx - 5, hy + 15, 2, 1, "#78350f")
+                        px(hx - 8, hy + 16, 3, 1, "#b45309")
+                        px(hx - 10, hy + 18, 3, 1, "#d97706")
 
                 # Exclamation mark above-left of buddy & sweat drop
                 px(10, 2, 2, 4, "#ef4444")
@@ -1605,12 +2186,36 @@ def run_gui(args: argparse.Namespace) -> int:
                 px(22, 3 - ((lift + 4) % 5), 2, 2, "#f472b6")
                 px(34, 10 - ((lift + 1) % 6), 2, 2, "#60a5fa")
             else:
-                # Cozy steaming coffee mug on the right when idle
-                px(31, 19, 4, 5, "#e2e8f0")
-                px(35, 20, 1, 3, "#cbd5e1")
-                px(32, 19, 2, 1, "#78350f")
-                steam_y = 16 - ((self.tick // 6) % 3)
-                px(32 + ((self.tick // 8) % 2), steam_y, 1, 2, "#e2e8f0", 130)
+                if self.config.get("character") == "kyubi":
+                    # Kyubi gathering fiery red-orange chakra when idle (no coffee mug)
+                    lift = (self.tick // 3) % 7
+                    pulse = (self.tick // 4) % 2
+                    px(10, 12 - (lift % 6), 2, 2, "#ef4444", 210)
+                    px(30, 10 - ((lift + 3) % 6), 2, 2, "#f97316", 210)
+                    px(20 + pulse, 6 - ((lift + 5) % 5), 2, 2, "#fbbf24", 220)
+                    px(15 - pulse, 8 - ((lift + 2) % 5), 1, 2, "#fef08a", 230)
+                    px(9, 17 - pulse, 2, 4, "#ef4444", 150)
+                    px(31, 16 + pulse, 2, 4, "#f97316", 150)
+                elif self.config.get("character") == "prabowo":
+                    # Mini pohon sawit (oil palm tree) on the right when idle
+                    sway = (self.tick // 10) % 2
+                    px(31, 22, 4, 2, "#92400e")
+                    px(32, 17, 2, 5, "#78350f")
+                    px(31, 17, 1, 2, "#ea580c")
+                    px(28 + sway, 15, 4, 1, "#16a34a")
+                    px(27 + sway, 16, 2, 1, "#22c55e")
+                    px(33 + sway, 15, 4, 1, "#16a34a")
+                    px(36 + sway, 16, 2, 1, "#22c55e")
+                    px(30, 13, 2, 2, "#22c55e")
+                    px(33, 13, 2, 2, "#15803d")
+                    px(31, 12, 3, 2, "#4ade80")
+                else:
+                    # Cozy steaming coffee mug on the right when idle
+                    px(31, 19, 4, 5, "#e2e8f0")
+                    px(35, 20, 1, 3, "#cbd5e1")
+                    px(32, 19, 2, 1, "#78350f")
+                    steam_y = 16 - ((self.tick // 6) % 3)
+                    px(32 + ((self.tick // 8) % 2), steam_y, 1, 2, "#e2e8f0", 130)
 
         def enterEvent(self, _event: Any) -> None:
             self.hovered = True

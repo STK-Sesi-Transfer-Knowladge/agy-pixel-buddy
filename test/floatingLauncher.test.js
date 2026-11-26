@@ -57,20 +57,20 @@ test('updateFloatingConfig and syncFloatingCharacter preserve preferences while 
     [cfgPath]: JSON.stringify({ character: 'cat', moveMode: 'sticky', language: 'id', scale: 4 })
   });
 
-  assert.equal(syncFloatingCharacter(cfgPath, 'bot', mockFs), true);
-  assert.equal(updateFloatingConfig(cfgPath, { language: 'en', moveMode: 'random', promptReaction: false, reactionTrigger: 'prompt', trainer: 'girl' }, mockFs), true);
+  assert.equal(syncFloatingCharacter(cfgPath, 'kyubi', mockFs), true);
+  assert.equal(updateFloatingConfig(cfgPath, { language: 'en', moveMode: 'random', scale: 2, promptReaction: false, reactionTrigger: 'prompt', trainer: 'naruto' }, mockFs), true);
 
   const updated = JSON.parse(mockFs.files.get(cfgPath));
-  assert.equal(updated.character, 'bot');
-  assert.equal(updated.trainer, 'girl');
+  assert.equal(updated.character, 'kyubi');
+  assert.equal(updated.trainer, 'naruto');
   assert.equal(updated.moveMode, 'random');
   assert.equal(updated.language, 'en');
   assert.equal(updated.promptReaction, false);
   assert.equal(updated.reactionTrigger, 'prompt');
-  assert.equal(updated.scale, 4);
+  assert.equal(updated.scale, 2);
   assert.equal(syncFloatingCharacter(cfgPath, 'invalid', mockFs), false);
   assert.equal(updateFloatingConfig(cfgPath, { trainer: 'unknown' }, mockFs), true);
-  assert.equal(JSON.parse(mockFs.files.get(cfgPath)).trainer, 'girl');
+  assert.equal(JSON.parse(mockFs.files.get(cfgPath)).trainer, 'naruto');
 });
 
 test('startFloatingBuddy spawns detached python process with mode and language flags', () => {

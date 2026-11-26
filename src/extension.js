@@ -111,6 +111,7 @@ class BuddyViewProvider {
     const character = config.get('character', 'cat');
     const trainer = config.get('trainer', 'boss');
     const floatingMode = config.get('floatingMode', 'random');
+    const floatingScale = config.get('floatingScale', 3);
     const language = config.get('language', 'id');
     const promptReaction = config.get('promptReaction', true);
     const reactionTrigger = config.get('reactionTrigger', 'hook');
@@ -122,7 +123,8 @@ class BuddyViewProvider {
       language,
       promptReaction,
       reactionTrigger,
-      trainer
+      trainer,
+      floatingScale
     );
 
     webviewView.webview.onDidReceiveMessage(async (msg) => {
@@ -132,6 +134,7 @@ class BuddyViewProvider {
         this.postState(this.getStateFn());
         this.postTrainer(cfg.get('trainer', 'boss'));
         this.postFloatingMode(cfg.get('floatingMode', 'random'));
+        this.postFloatingScale(cfg.get('floatingScale', 3));
         this.postLanguage(cfg.get('language', 'id'));
         this.postReactionSetting(cfg.get('promptReaction', true), cfg.get('reactionTrigger', 'hook'));
       } else if (msg.type === 'setCharacter' && typeof msg.character === 'string') {
@@ -146,6 +149,10 @@ class BuddyViewProvider {
         await vscode.workspace
           .getConfiguration('agyPixelBuddy')
           .update('floatingMode', msg.mode, vscode.ConfigurationTarget.Global);
+      } else if (msg.type === 'setFloatingScale' && Number.isInteger(Number(msg.scale))) {
+        await vscode.workspace
+          .getConfiguration('agyPixelBuddy')
+          .update('floatingScale', Number(msg.scale), vscode.ConfigurationTarget.Global);
       } else if (msg.type === 'setLanguage' && typeof msg.language === 'string') {
         await vscode.workspace
           .getConfiguration('agyPixelBuddy')
@@ -194,6 +201,12 @@ class BuddyViewProvider {
     }
   }
 
+  postFloatingScale(scale) {
+    if (this.view) {
+      this.view.webview.postMessage({ type: 'floatingScaleUpdate', scale });
+    }
+  }
+
   postLanguage(language) {
     if (this.view) {
       this.view.webview.postMessage({ type: 'languageUpdate', language });
@@ -239,6 +252,7 @@ function activate(context) {
       character: config.get('character', 'cat'),
       trainer: config.get('trainer', 'boss'),
       mode: config.get('floatingMode', 'random'),
+      scale: config.get('floatingScale', 3),
       language: config.get('language', 'id'),
       promptReaction: config.get('promptReaction', true),
       reactionTrigger: config.get('reactionTrigger', 'hook'),
@@ -270,6 +284,9 @@ function activate(context) {
       }
       if (typeof diskCfg.moveMode === 'string' && diskCfg.moveMode !== vsCfg.get('floatingMode')) {
         await vsCfg.update('floatingMode', diskCfg.moveMode, vscode.ConfigurationTarget.Global);
+      }
+      if (typeof diskCfg.scale === 'number' && [2, 3, 4].includes(diskCfg.scale) && diskCfg.scale !== vsCfg.get('floatingScale')) {
+        await vsCfg.update('floatingScale', diskCfg.scale, vscode.ConfigurationTarget.Global);
       }
       if (typeof diskCfg.language === 'string' && diskCfg.language !== vsCfg.get('language')) {
         await vsCfg.update('language', diskCfg.language, vscode.ConfigurationTarget.Global);
@@ -377,7 +394,7 @@ function activate(context) {
   });
 
   const cycleCmd = vscode.commands.registerCommand('agyPixelBuddy.cycleCharacter', async () => {
-    const order = ['cat', 'bot', 'dev'];
+    const order = ['cat', 'bot', 'dev', 'kyubi', 'jokowi', 'prabowo', 'trump', 'putin', 'kim', 'fufufafa'];
     const config = vscode.workspace.getConfiguration('agyPixelBuddy');
     const current = config.get('character', 'cat');
     const next = order[(order.indexOf(current) + 1) % order.length];
@@ -439,6 +456,11 @@ function activate(context) {
       const mode = cfg.get('floatingMode', 'random');
       applyModeToOverlay(mode);
       provider.postFloatingMode(mode);
+    }
+    if (e.affectsConfiguration('agyPixelBuddy.floatingScale')) {
+      const scale = cfg.get('floatingScale', 3);
+      updateFloatingConfig(DEFAULT_FLOATING_CONFIG_PATH, { scale });
+      provider.postFloatingScale(scale);
     }
     if (e.affectsConfiguration('agyPixelBuddy.language')) {
       const lang = cfg.get('language', 'id');

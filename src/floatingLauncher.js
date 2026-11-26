@@ -10,9 +10,10 @@ const DEFAULT_FLOATING_PID_PATH = path.join(os.homedir(), '.gemini', 'antigravit
 const DEFAULT_FLOATING_LOCK_PATH = path.join(os.homedir(), '.gemini', 'antigravity', 'buddy-floating.lock');
 const DEFAULT_WORKSPACES_PATH = path.join(os.homedir(), '.gemini', 'antigravity', 'buddy-workspaces.json');
 
-const VALID_CHARS = new Set(['cat', 'bot', 'dev']);
-const VALID_TRAINERS = new Set(['boss', 'girl', 'sensei']);
+const VALID_CHARS = new Set(['cat', 'bot', 'dev', 'kyubi', 'jokowi', 'prabowo', 'trump', 'putin', 'kim', 'fufufafa']);
+const VALID_TRAINERS = new Set(['boss', 'girl', 'sensei', 'naruto', 'jokowi', 'prabowo', 'trump', 'putin', 'kim', 'fufufafa']);
 const VALID_MODES = new Set(['random', 'sticky', 'hidden']);
+const VALID_SCALES = new Set([2, 3, 4]);
 const VALID_LANGS = new Set(['en', 'id']);
 const VALID_TRIGGERS = new Set(['hook', 'prompt']);
 
@@ -73,6 +74,10 @@ function updateFloatingConfig(configPath = DEFAULT_FLOATING_CONFIG_PATH, patch =
     }
     if (typeof patch.moveMode === 'string' && VALID_MODES.has(patch.moveMode) && next.moveMode !== patch.moveMode) {
       next.moveMode = patch.moveMode;
+      changed = true;
+    }
+    if (Number.isInteger(patch.scale) && VALID_SCALES.has(patch.scale) && next.scale !== patch.scale) {
+      next.scale = patch.scale;
       changed = true;
     }
     if (typeof patch.language === 'string' && VALID_LANGS.has(patch.language) && next.language !== patch.language) {
@@ -160,6 +165,7 @@ function startFloatingBuddy(options, deps = {}) {
     character = 'cat',
     trainer = 'boss',
     mode = 'random',
+    scale = 3,
     language = 'id',
     promptReaction = true,
     reactionTrigger = 'hook',
@@ -172,6 +178,7 @@ function startFloatingBuddy(options, deps = {}) {
   }
 
   const safeMode = VALID_MODES.has(mode) ? mode : 'random';
+  const safeScale = VALID_SCALES.has(Number(scale)) ? Number(scale) : 3;
   const safeLang = VALID_LANGS.has(language) ? language : 'id';
   const safeChar = VALID_CHARS.has(character) ? character : 'cat';
   const safeTrainer = VALID_TRAINERS.has(trainer) ? trainer : 'boss';
@@ -184,6 +191,7 @@ function startFloatingBuddy(options, deps = {}) {
       character: safeChar,
       trainer: safeTrainer,
       moveMode: safeMode,
+      scale: safeScale,
       language: safeLang,
       promptReaction: safeReaction,
       reactionTrigger: safeTrigger
