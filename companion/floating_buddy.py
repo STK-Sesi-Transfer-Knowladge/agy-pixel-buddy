@@ -623,9 +623,7 @@ class Win32IdeTracker:
             return True, self.last_ide_bounds, self.last_ide_title
         try:
             hwnd = self.user32.GetForegroundWindow()
-            if not hwnd:
-                return True, self.last_ide_bounds, self.last_ide_title
-            if self.user32.IsIconic(hwnd):
+            if not hwnd or self.user32.IsIconic(hwnd):
                 return False, self.last_ide_bounds, self.last_ide_title
 
             pid = self.wintypes.DWORD()
@@ -924,9 +922,10 @@ def run_gui(args: argparse.Namespace) -> int:
                 self.unfocused_polls = 0
                 if not initial and not self.isVisible():
                     self.show()
+                    self.raise_()
             else:
                 self.unfocused_polls += 1
-                if not initial and self.isVisible() and self.unfocused_polls >= 3:
+                if not initial and self.isVisible() and self.unfocused_polls >= 2:
                     self.hide()
 
             self.ide_focused = focused
