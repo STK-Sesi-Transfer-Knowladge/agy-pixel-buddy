@@ -128,6 +128,8 @@ function resolvePythonCommand(preferredBin, deps = {}) {
 
   const execFileSyncFn = deps.execFileSync || childProcess.execFileSync;
   const candidates = [
+    { bin: 'pythonw', prefixArgs: [] },
+    { bin: 'pyw', prefixArgs: ['-3'] },
     { bin: 'py', prefixArgs: ['-3'] },
     { bin: 'python', prefixArgs: [] },
     { bin: 'python3', prefixArgs: [] }
