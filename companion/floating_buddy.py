@@ -623,7 +623,9 @@ class Win32IdeTracker:
             return True, self.last_ide_bounds, self.last_ide_title
         try:
             hwnd = self.user32.GetForegroundWindow()
-            if not hwnd or self.user32.IsIconic(hwnd):
+            if not hwnd:
+                return True, self.last_ide_bounds, self.last_ide_title
+            if self.user32.IsIconic(hwnd):
                 return False, self.last_ide_bounds, self.last_ide_title
 
             pid = self.wintypes.DWORD()
@@ -803,6 +805,8 @@ def run_gui(args: argparse.Namespace) -> int:
             self.ide_tracker = create_ide_tracker(os.getpid())
             self.ide_focused: bool = True
             self.ide_bounds: Optional[Tuple[int, int, int, int]] = None
+            self.unfocused_polls: int = 0
+            self.drag_grace_until: float = 0.0
 
             self.pos_x: float = 0.0
             self.pos_y: float = 0.0
@@ -907,6 +911,8 @@ def run_gui(args: argparse.Namespace) -> int:
         def _sync_ide_window(self, initial: bool = False) -> None:
             if self.dragging or self.menu_open or QApplication.activePopupWidget() is not None:
                 return
+            if not initial and time.monotonic() < self.drag_grace_until:
+                return
             focused, bounds, title = self.ide_tracker.poll()
             bounds_changed = bounds is not None and bounds != self.ide_bounds
             if bounds is not None:
@@ -914,10 +920,13 @@ def run_gui(args: argparse.Namespace) -> int:
             if title:
                 self.ide_title = title
 
-            if not initial:
-                if focused and not self.isVisible():
+            if focused:
+                self.unfocused_polls = 0
+                if not initial and not self.isVisible():
                     self.show()
-                elif not focused and self.isVisible():
+            else:
+                self.unfocused_polls += 1
+                if not initial and self.isVisible() and self.unfocused_polls >= 3:
                     self.hide()
 
             self.ide_focused = focused
@@ -1117,6 +1126,10 @@ def run_gui(args: argparse.Namespace) -> int:
             return QRect(bx, 2, bw, 26)
 
         def _update_click_mask(self) -> None:
+            # On Windows, WA_TranslucentBackground uses layered windows (per-pixel alpha hit-testing).
+            # Calling setMask() on a layered window conflicts with UpdateLayeredWindow during drag/move.
+            if sys.platform == "win32":
+                return
             sx, sy = self._sprite_origin()
             sw, sh = self._sprite_area_size()
             s = self._scale()
@@ -2251,6 +2264,7 @@ def run_gui(args: argparse.Namespace) -> int:
         def mouseReleaseEvent(self, event: Any) -> None:
             if event.button() == Qt.LeftButton and self.dragging:
                 self.dragging = False
+                self.drag_grace_until = time.monotonic() + 1.0
                 if self.drag_moved:
                     self._save_config()
                 elif should_trigger_click_reaction(self.effective_state, self.drag_moved):
